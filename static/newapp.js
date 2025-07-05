@@ -11,31 +11,35 @@ function fetchChurches() {
     fetch('/churches/')
         .then(response => response.json())
         .then(churches => {
-            const churchesList = document.getElementById('churches-list');
-            churchesList.innerHTML = '';
+            const tableBody = document.getElementById('churches-table-body');
+            tableBody.innerHTML = '';
             churches.forEach(church => {
-                const li = document.createElement('li');
-                li.innerHTML = `
-                    <span>${church.name} - ${church.location}</span>
-                    <button onclick="editChurch(${church.id}, '${church.name}', '${church.location}', '${church.info || ''}')">Edit</button>
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>${church.name}</td>
+                    <td>${church.location}</td>
+                    <td>${church.info || ''}</td>
+                    <td><button onclick="editChurch(${church.id}, '${church.name}', '${church.location}', '${church.info || ''}')">Edit</button></td>
                     `;
-                churchesList.appendChild(li);
+                tableBody.appendChild(row);
             });
         })
         .catch(error => console.error('Error fetching churches:', error));
 }
 
 function editChurch(id, name, location, info) {
-    const li = document.createElement('li');
-    li.innerHTML = `
-        <input type="text" id="edit-name-${id}" value="${name}">
-        <input type="text" id="edit-location-${id}" value="${location}">
-        <input type="text" id="edit-info-${id}" value="${info}">
-        <button onclick="updateChurch(${id})">Update</button>
+    const tableBody = document.getElementById('churches-table-body');
+    const rows = [...tableBody.rows]
+    const rowIndex = rows.findIndex(row => row.cells[0].textContent === name);
+    const row = tableBody.rows[rowIndex];
+    row.innerHTML = `
+        <td><input type="text" id="edit-name-${id}" value="${name}"></td>
+        <td><input type="text" id="edit-location-${id}" value="${location}"></td>
+        <td><input type="text" id="edit-info-${id}" value="${info}"></td>
+        <td><button onclick="updateChurch(${id})">Update</button></td>
     `;
-    const churchesList = document.getElementById('churches-list');
-    const oldLi = [...churchesList.children].find(li => li.textContent.includes(name));
-    churchesList.replaceChild(li, oldLi);
+    const oldRow = [...tableBody.children].find(td => td.textContent.includes(name));
+    churchesList.replaceChild(row, oldRow);
 }
 
 function updateChurch(id) {
