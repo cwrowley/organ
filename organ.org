@@ -1,0 +1,7 @@
+* Useful queries
+** For a given piece, when and where have I played it?
+- Add a gig from here?
+** For a given church, when have I played, and what pieces?
+- Add a gig from here?
+** List all pieces
+- Order by last date played, or alphabetical (composer, title), or duration
