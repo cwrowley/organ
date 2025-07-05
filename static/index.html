@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Organ Gigs</title>
+</head>
+<body>
+    <h1>Organ Gigs</h1>
+
+    <h2>Churches</h2>
+    <ul id="churches-list"></ul>
+
+    <h3>Add Church</h3>
+    <form id="add-church-form">
+        <input type="text" id="church-name" placeholder="Church Name" required>
+        <input type="text" id="church-location" placeholder="Location">
+        <input type="text" id="church-info" placeholder="Info">
+        <button type="submit">Add Church</button>
+    </form>
+
+    <h2>Pieces</h2>
+    <ul id="pieces-list"></ul>
+
+    <h3>Add Piece</h3>
+    <form id="add-piece-form">
+        <input type="text" id="piece-title" placeholder="Title" required>
+        <input type="text" id="piece-composer" placeholder="Composer" required>
+        <input type="number" id="piece-duration" placeholder="Duration">
+        <button type="submit">Add Piece</button>
+    </form>
+
+    <script src="newapp.js"></script>
+</body>
+</html>
