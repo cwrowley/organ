@@ -4,94 +4,6 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Add Gig</title>
-    <script>
-        async function fetchOptions(endpoint) {
-            const response = await fetch(endpoint);
-            return response.json();
-        }
-
-        async function populateOptions() {
-            const churches = await fetchOptions('/churches/');
-            const pieces = await fetchOptions('/pieces/');
-            
-            const churchSelect = document.getElementById('church');
-            churches.forEach(church => {
-                const option = document.createElement('option');
-                option.value = church.church_id;
-                option.textContent = church.name;
-                churchSelect.appendChild(option);
-            });
-
-            const pieceSelects = document.querySelectorAll('.piece');
-            pieceSelects.forEach(select => {
-                pieces.forEach(piece => {
-                    const option = document.createElement('option');
-                    option.value = piece.piece_id;
-                    option.textContent = piece.title;
-                    select.appendChild(option);
-                });
-            });
-        }
-
-        function foo() {
-
-        }
-
-        async function addGig() {
-            preludeId = parseInt(document.getElementById('piece1').value);
-            offertoryId = parseInt(document.getElementById('piece2').value);
-            postludeId = parseInt(document.getElementById('piece3').value);
-
-            const pieces = []
-            if (preludeId) {
-                const prelude = {
-                    piece_id: preludeId,
-                    role: 'Prelude'
-                }
-                pieces.push(prelude);
-            }
-            if (offertoryId) {
-                const offertory = {
-                    piece_id: offertoryId,
-                    role: 'Offertory'
-                }
-                pieces.push(offertory);
-            }
-            if (postludeId) {
-                const postlude = {
-                    piece_id: postludeId,
-                    role: 'Postlude'
-                }
-                pieces.push(postlude);
-            }
-
-            const gigData = {
-                date: document.getElementById('date').value,
-                church_id: parseInt(document.getElementById('church').value),
-                fee: parseFloat(document.getElementById('fee').value),
-                pieces: pieces
-            };
-
-            const response = await fetch('/gigs/', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify(gigData)
-            });
-
-            const result = await gigResponse.json();
-            console.log(result)
-
-            if (response.ok) {
-                alert('Gig added successfully!');
-            } else {
-                alert('Error adding gig: ' + result.detail);
-            }
-        }
-
-        window.onload = populateOptions;
-    </script>
 </head>
 <body>
     <h1>Add a New Gig</h1>
@@ -109,26 +21,24 @@
         <input type="number" id="fee" required step="0.01"><br>
 
         <h2>Select Pieces</h2>
-        <label for="piece1">Prelude:</label>
-        <select id="piece1" class="piece" required>
-            <option value="" disabled selected>Select a piece</option>
-            <!-- Options will be populated by JavaScript -->
-        </select><br>
-
-        <label for="piece2">Offertory:</label>
-        <select id="piece2" class="piece" required>
-            <option value="" disabled selected>Select a piece</option>
-            <!-- Options will be populated by JavaScript -->
-        </select><br>
-
-        <label for="piece3">Postlude:</label>
-        <select id="piece3" class="piece" required>
-            <option value="" disabled selected>Select a piece</option>
-            <!-- Options will be populated by JavaScript -->
-        </select><br>
+        <div id="pieces-container">
+            <div class="piece-role-pair">
+                <label>Piece 1:</label>
+                <select class="piece">
+                    <option value="" disabled selected>Select a piece</option>
+                    <!-- Options will be populated by JavaScript -->
+                </select>
+                <select class="role">
+                    <option value="" disabled selected>Select a role</option>
+                    <!-- Options will be populated by JavaScript -->
+                </select><br>
+            </div>
+        </div>
+        <button type="button" onclick="addPiece()">Add Another Piece</button><br>
 
         <button type="submit">Add Gig</button>
     </form>
+    <script src="app.js"></script>
 </body>
 </html>
 <!-- This HTML file allows users to add a new gig by selecting a date, church, fee
