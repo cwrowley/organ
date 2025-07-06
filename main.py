@@ -1,5 +1,6 @@
 from fastapi import FastAPI, Depends, HTTPException
 from fastapi.staticfiles import StaticFiles
+from sqlalchemy import desc
 from sqlalchemy.orm import Session
 from models import Gig, GigPiece, Church, Piece, Role, SessionLocal
 from pydantic import BaseModel
@@ -78,6 +79,13 @@ def delete_church(church_id: int, db: Session = Depends(get_db)):
     db.commit()
     return {"detail": "Church deleted successfully"}
 
+@app.get("/churches/{church_id}/gigs")
+def read_church_gigs(church_id: int, db: Session = Depends(get_db)):
+    church = db.get(Church, church_id)
+    if not church:
+        raise HTTPException(status_code=404, detail="Church not found")
+    gigs = db.query(Gig).filter(Gig.church_id == church_id).order_by(desc(Gig.date)).all()
+    return gigs
 # Endpoints for pieces
 
 @app.get("/pieces/")
@@ -120,6 +128,14 @@ def delete_piece(piece_id: int, db: Session = Depends(get_db)):
     db.commit()
     return {"detail": "Piece deleted successfully"}
  
+@app.get("/pieces/{piece_id}/gigs")
+def read_piece_gigs(piece_id: int, db: Session = Depends(get_db)):
+    piece = db.get(Piece, piece_id)
+    if not piece:
+        raise HTTPException(status_code=404, detail="Piece not found")
+    gigs = db.query(Gig).join(GigPiece).filter(GigPiece.piece_id == piece_id).order_by(desc(Gig.date)).all()
+    return gigs
+
 @app.get("/gigs/")
 def read_gigs(db: Session = Depends(get_db)):
     gigs = db.query(Gig).all()
@@ -157,6 +173,21 @@ def read_gig(gig_id: int, db: Session = Depends(get_db)):
         "fee": gig.fee,
         "pieces": pieces,
     }
+
+@app.get("/gigs/{gig_id}/pieces")
+def read_gig_pieces(gig_id: int, db: Session = Depends(get_db)):
+    gig = db.get(Gig, gig_id)
+    if not gig:
+        raise HTTPException(status_code=404, detail="Gig not found")
+    pieces = []
+    for gp in gig.gig_pieces:
+        piece = db.get(Piece, gp.piece_id)
+        if piece:
+            pieces.append({
+                "piece": piece,
+                "role": gp.role
+            })
+    return pieces
 
 @app.put("/gigs/{gig_id}")
 def update_gig(gig_id: int, gig_update: GigCreate, db: Session = Depends(get_db)):
