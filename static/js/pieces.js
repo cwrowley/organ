@@ -34,6 +34,7 @@ function fetchPieces() {
                 `;
                 tableBody.appendChild(row);
             });
+            populateComposerAutocomplete(pieces);
         })
         .catch(error => console.error('Error fetching pieces:', error));
 }
@@ -111,4 +112,20 @@ function showPieceGigs(pieceId) {
             });
         })
         .catch(error => console.error('Error fetching gigs for piece:', error));
+}
+
+function populateComposerAutocomplete(pieces) {
+    const composerSet = new Set();
+    pieces.forEach(piece => {
+        if (piece.composer) {
+            composerSet.add(piece.composer);
+        }
+    });
+    const datalist = document.getElementById('composer-list');
+    datalist.innerHTML = '';
+    composerSet.forEach(composer => {
+        const option = document.createElement('option');
+        option.value = composer;
+        datalist.appendChild(option);
+    });
 }

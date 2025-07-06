@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Organ Gigs</title>
-    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="css/styles.css">
 </head>
 <body>
     <h1>Organ Gigs</h1>
@@ -30,22 +30,12 @@
         <button type="submit">Add Church</button>
     </form>
 
-    <h2>Pieces</h2>
-    <ul id="pieces-list"></ul>
-
-    <h3>Add Piece</h3>
-    <form id="add-piece-form">
-        <input type="text" id="piece-title" placeholder="Title" required>
-        <input type="text" id="piece-composer" placeholder="Composer" required>
-        <input type="number" id="piece-duration" placeholder="Duration">
-        <button type="submit">Add Piece</button>
-    </form>
-
     <h2>Gigs</h2>
     <button onclick="fetchGigs()">Show All Gigs</button>
 
     <ul id="gigs-list"></ul>
 
-    <script src="newapp.js"></script>
+    <script src="js/common.js"></script>
+    <script src="js/main.js"></script>
 </body>
 </html>
