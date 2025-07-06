@@ -46,8 +46,8 @@ class Gig(Base):
 
 class Role(enum.Enum):
     PRELUDE = "Prelude"
-    POSTLUDE = "Postlude"
     OFFERTORY = "Offertory"
+    POSTLUDE = "Postlude"
     OTHER = "Other"
 
 class GigPiece(Base):
