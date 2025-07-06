@@ -39,6 +39,23 @@ button:hover {
     background-color: #2980b9;
 }
 
+/* Form label styling */
+#add-gig-form label {
+    display: inline-block;
+    width: 80px;
+    font-weight: bold;
+    margin-right: 0.5rem;
+}
+
+#add-gig-form > label {
+    margin-top: 0.5rem;
+}
+
+.piece-role-pair label {
+    width: 60px;
+    font-size: 0.9rem;
+}
+
 /* Tables */
 table {
     width: 100%;
@@ -88,4 +105,146 @@ th {
     td:nth-of-type(2)::before { content: "Location"; }
     td:nth-of-type(3)::before { content: "Info"; }
     td:nth-of-type(4)::before { content: "Actions"; }
+}
+
+.selected-row {
+    background-color: #dff0ff;
+}
+
+.keyboard-focus {
+    outline: 2px solid #3498db;
+    background-color: #eaf6ff;
+}
+
+/* Gig form styles */
+#add-gig-form-container {
+    background-color: white;
+    padding: 1.5rem;
+    border-radius: 8px;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    margin-top: 1rem;
+    max-width: 600px;
+}
+
+#add-gig-form-container h3 {
+    margin-top: 0;
+    color: #2c3e50;
+    border-bottom: 2px solid #3498db;
+    padding-bottom: 0.5rem;
+}
+
+.piece-role-pair {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin-bottom: 0.5rem;
+    padding: 0.5rem;
+    background-color: #f8f9fa;
+    border-radius: 4px;
+}
+
+.piece-select, .role-select {
+    flex: 1;
+    padding: 0.5rem;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    font-size: 0.9rem;
+}
+
+input[type="date"], input[type="number"], select {
+    width: 200px;
+    padding: 0.5rem;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    font-size: 1rem;
+    margin: 0.25rem 0.5rem 0.25rem 0;
+}
+
+#gig-pieces-container {
+    border: 1px solid #e0e0e0;
+    border-radius: 4px;
+    padding: 1rem;
+    margin: 0.5rem 0;
+    background-color: #fafafa;
+}
+
+button[type="button"] {
+    background-color: #e74c3c;
+}
+
+button[type="button"]:hover {
+    background-color: #c0392b;
+}
+
+/* Church row selection styles */
+.church-row {
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+}
+
+.church-row:hover {
+    background-color: #f0f8ff;
+}
+
+.church-row.selected {
+    background-color: #e3f2fd;
+    border-left: 4px solid #3498db;
+}
+
+.church-row.selected:hover {
+    background-color: #bbdefb;
+}
+
+/* Make sure buttons in selected rows don't inherit the selection styling */
+.church-row button {
+    background-color: #3498db;
+    color: white;
+}
+
+.church-row button:hover {
+    background-color: #2980b9;
+}
+
+/* Add piece form styling */
+#add-piece-form {
+    margin-bottom: 2rem;
+}
+
+#add-piece-form input {
+    margin-right: 0.5rem;
+    margin-bottom: 0.5rem;
+}
+
+#piece-duration {
+    width: 150px;
+}
+
+/* Navigation styling */
+.main-navigation {
+    margin: 1rem 0 2rem 0;
+    padding: 1rem 0;
+    border-bottom: 2px solid #e0e0e0;
+}
+
+.nav-button {
+    display: inline-block;
+    padding: 0.75rem 1.5rem;
+    background-color: #27ae60;
+    color: white;
+    text-decoration: none;
+    border-radius: 4px;
+    font-size: 1rem;
+    font-weight: 500;
+    transition: background-color 0.2s ease;
+    border: none;
+    cursor: pointer;
+}
+
+.nav-button:hover {
+    background-color: #229954;
+    text-decoration: none;
+}
+
+.nav-button:visited {
+    color: white;
 }
