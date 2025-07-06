@@ -6,6 +6,8 @@ from typing import Optional
 from typing_extensions import Annotated
 import datetime
 
+__all__ = ["Piece", "Church", "Gig", "GigPiece", "Role"]
+
 class Base(DeclarativeBase):
     pass
 
