@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Pieces</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <h1>Pieces</h1>
+
+    <table border="1">
+        <thead>
+            <tr>
+                <th>Composer</th>
+                <th>Title</th>
+                <th>Duration (min)</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody id="pieces-table-body"></tbody>
+    </table>
+
+    <h3>Add Piece</h3>
+    <form id="add-piece-form">
+        <input type="text" id="piece-title" placeholder="Title" required>
+        <input type="text" id="piece-composer" placeholder="Composer" required>
+        <input type="number" id="piece-duration" placeholder="Duration">
+        <button type="submit">Add Piece</button>
+    </form>
+
+    <h3>Gigs Featuring This Piece</h3>
+    <ul id="piece-gigs-list"></ul>
+
+    <script src="pieces.js"></script>
+</body>
+</html>
