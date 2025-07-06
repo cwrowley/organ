@@ -16,7 +16,7 @@ function fetchChurches() {
             churches.forEach(church => {
                 const row = document.createElement('tr');
                 row.innerHTML = `
-                    <td>${church.name}</td>
+                    <td><a href="#" onclick="filterGigsByChurch(${church.id})">${church.name}</a></td>
                     <td>${church.location}</td>
                     <td>${church.info || ''}</td>
                     <td><button onclick="editChurch(${church.id}, '${church.name}', '${church.location}', '${church.info || ''}')">Edit</button></td>
@@ -47,7 +47,7 @@ function updateChurch(id) {
     const location = document.getElementById(`edit-location-${id}`).value;
     const info = document.getElementById(`edit-info-${id}`).value;
 
-    fetch(`/churches/${id}/`, {
+    fetch(`/churches/${id}`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ name, location, info }),
@@ -55,6 +55,21 @@ function updateChurch(id) {
     .then(response => response.json())
     .then(() => fetchChurches())
     .catch(error => console.error('Error updating church:', error));
+}
+
+function filterGigsByChurch(churchId) {
+    fetch(`/churches/${churchId}/gigs`)
+        .then(response => response.json())
+        .then(gigs => {
+            const gigsList = document.getElementById('gigs-list');
+            gigsList.innerHTML = '';
+            gigs.forEach(gig => {
+                const li = document.createElement('li');
+                li.textContent = `${gig.date} - ${gig.church_id}`;
+                gigsList.appendChild(li);
+            });
+        })
+        .catch(error => console.error('Error fetching gigs for church:', error));
 }
 
 function fetchPieces() {
