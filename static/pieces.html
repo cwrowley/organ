@@ -8,6 +8,13 @@
 <body>
     <h1>Pieces</h1>
 
+    <nav class="main-navigation">
+        <a href="index.html" class="nav-button">← Back to Main</a>
+    </nav>
+
+    <label for="piece-search">Search pieces:</label>
+    <input type="text" id="piece-search" placeholder="Type to filter...">
+
     <table border="1">
         <thead>
             <tr>
@@ -28,6 +35,7 @@
         <input type="number" id="piece-duration" placeholder="Duration">
         <button type="submit">Add Piece</button>
     </form>
+    <small>Press <strong>A</strong> to jump to this form</small>
 
     <h3 id="piece-heading">Gigs Featuring This Piece</h3>
     <ul id="piece-gigs-list"></ul>

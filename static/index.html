@@ -9,6 +9,10 @@
 <body>
     <h1>Organ Gigs</h1>
 
+    <nav class="main-navigation">
+        <a href="pieces.html" class="nav-button">Manage Pieces</a>
+    </nav>
+
     <h2>Churches</h2>
     <table>
         <thead>
@@ -30,10 +34,59 @@
         <button type="submit">Add Church</button>
     </form>
 
+    <h3>Add Piece</h3>
+    <form id="add-piece-form">
+        <input type="text" id="piece-title" placeholder="Title" required>
+        <input type="text" id="piece-composer" list="composer-list" placeholder="Composer" required>
+        <datalist id="composer-list"></datalist>
+        <input type="number" id="piece-duration" placeholder="Duration (seconds)">
+        <button type="submit">Add Piece</button>
+    </form>
+
     <h2>Gigs</h2>
     <button onclick="fetchGigs()">Show All Gigs</button>
+    <button id="add-gig-btn" onclick="showAddGigForm()">Add Gig</button>
 
     <ul id="gigs-list"></ul>
+
+    <!-- Add Gig Form (initially hidden) -->
+    <div id="add-gig-form-container" style="display: none;">
+        <h3>Add New Gig</h3>
+        <form id="add-gig-form">
+            <label for="gig-date">Date:</label>
+            <input type="date" id="gig-date" required><br>
+
+            <label for="gig-church">Church:</label>
+            <select id="gig-church" required>
+                <option value="" disabled selected>Select a church</option>
+                <!-- Options will be populated by JavaScript -->
+            </select><br>
+
+            <label for="gig-fee">Fee:</label>
+            <input type="number" id="gig-fee" placeholder="Fee" step="0.01" min="0"><br>
+
+            <h4>Select Pieces</h4>
+            <div id="gig-pieces-container">
+                <div class="piece-role-pair">
+                    <label>Piece 1:</label>
+                    <select class="piece-select" required>
+                        <option value="" disabled selected>Select a piece</option>
+                        <!-- Options will be populated by JavaScript -->
+                    </select>
+                    <select class="role-select" required>
+                        <option value="" disabled selected>Select a role</option>
+                        <!-- Options will be populated by JavaScript -->
+                    </select>
+                    <button type="button" onclick="removePieceFromGig(this)">Remove</button>
+                </div>
+            </div>
+            <button type="button" onclick="addPieceToGig()">Add Another Piece</button>
+            
+            <br><br>
+            <button type="submit">Add Gig</button>
+            <button type="button" onclick="hideAddGigForm()">Cancel</button>
+        </form>
+    </div>
 
     <script src="js/common.js"></script>
     <script src="js/main.js"></script>
