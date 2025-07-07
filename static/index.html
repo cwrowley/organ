@@ -9,83 +9,135 @@
 <body>
     <h1>Organ Gigs</h1>
 
-    <nav class="main-navigation">
-        <a href="pieces.html" class="nav-button">Manage Pieces</a>
+    <nav class="nav">
+        <a href="pieces.html" class="btn btn--success btn--lg">Manage Pieces</a>
     </nav>
 
-    <h2>Churches</h2>
-    <table>
-        <thead>
-            <tr>
-                <th>Name</th>
-                <th>Location</th>
-                <th>Info</th>
-                <th>Actions</th>
-            </tr>
-        </thead>
-        <tbody id="churches-table-body"></tbody>
-    </table>
+    <!-- Churches Section -->
+    <section>
+        <h2>Churches</h2>
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>Name</th>
+                    <th>Location</th>
+                    <th>Info</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody id="churches-table-body"></tbody>
+        </table>
 
-    <h3>Add Church</h3>
-    <form id="add-church-form">
-        <input type="text" id="church-name" placeholder="Church Name" required>
-        <input type="text" id="church-location" placeholder="Location">
-        <input type="text" id="church-info" placeholder="Info">
-        <button type="submit">Add Church</button>
-    </form>
+        <div class="card">
+            <div class="card__header">
+                <h3 class="card__title">Add Church</h3>
+            </div>
+            <form id="add-church-form" class="form">
+                <div class="grid grid--cols-3">
+                    <div class="form-field">
+                        <label for="church-name">Church Name</label>
+                        <input type="text" id="church-name" class="form-input" required>
+                    </div>
+                    <div class="form-field">
+                        <label for="church-location">Location</label>
+                        <input type="text" id="church-location" class="form-input">
+                    </div>
+                    <div class="form-field">
+                        <label for="church-info">Info</label>
+                        <input type="text" id="church-info" class="form-input">
+                    </div>
+                </div>
+                <div class="card__actions">
+                    <button type="submit" class="btn btn--success">Add Church</button>
+                </div>
+            </form>
+        </div>
 
-    <h3>Add Piece</h3>
-    <form id="add-piece-form">
-        <input type="text" id="piece-title" placeholder="Title" required>
-        <input type="text" id="piece-composer" list="composer-list" placeholder="Composer" required>
-        <datalist id="composer-list"></datalist>
-        <input type="number" id="piece-duration" placeholder="Duration (seconds)">
-        <button type="submit">Add Piece</button>
-    </form>
+        <div class="card">
+            <div class="card__header">
+                <h3 class="card__title">Add Piece</h3>
+            </div>
+            <form id="add-piece-form" class="form">
+                <div class="grid grid--cols-3">
+                    <div class="form-field">
+                        <label for="piece-title">Title</label>
+                        <input type="text" id="piece-title" class="form-input" required>
+                    </div>
+                    <div class="form-field">
+                        <label for="piece-composer">Composer</label>
+                        <input type="text" id="piece-composer" list="composer-list" class="form-input" required>
+                        <datalist id="composer-list"></datalist>
+                    </div>
+                    <div class="form-field">
+                        <label for="piece-duration">Duration (seconds)</label>
+                        <input type="number" id="piece-duration" class="form-input">
+                    </div>
+                </div>
+                <div class="card__actions">
+                    <button type="submit" class="btn btn--success">Add Piece</button>
+                </div>
+            </form>
+        </div>
+    </section>
 
-    <h2>Gigs</h2>
-    <button onclick="fetchGigs()">Show All Gigs</button>
-    <button id="add-gig-btn" onclick="showAddGigForm()">Add Gig</button>
+    <!-- Gigs Section -->
+    <section>
+        <h2>Gigs</h2>
+        <div class="gigs-controls">
+            <button onclick="fetchGigs()" class="btn btn--primary">Refresh Gigs</button>
+            <button id="add-gig-btn" onclick="showAddGigForm()" class="btn btn--success">Add Gig</button>
+            <button id="show-all-gigs-btn" onclick="toggleShowAllGigs()" class="btn btn--secondary" style="display: none;">Show All Gigs</button>
+        </div>
 
-    <ul id="gigs-list"></ul>
+        <div id="gigs-container"></div>
+        
+        <div id="gigs-pagination" class="pagination" style="display: none;">
+            <button id="load-more-gigs" onclick="loadMoreGigs()" class="btn btn--primary">Load More Gigs</button>
+            <span id="gigs-count-info" class="pagination__info"></span>
+        </div>
+    </section>
 
     <!-- Add Gig Form (initially hidden) -->
     <div id="add-gig-form-container" style="display: none;">
-        <h3>Add New Gig</h3>
-        <form id="add-gig-form">
-            <label for="gig-date">Date:</label>
-            <input type="date" id="gig-date" required><br>
-
-            <label for="gig-church">Church:</label>
-            <select id="gig-church" required>
-                <option value="" disabled selected>Select a church</option>
-                <!-- Options will be populated by JavaScript -->
-            </select><br>
-
-            <label for="gig-fee">Fee:</label>
-            <input type="number" id="gig-fee" placeholder="Fee" step="0.01" min="0"><br>
-
-            <h4>Select Pieces</h4>
-            <div id="gig-pieces-container">
-                <div class="piece-role-pair">
-                    <label>Piece 1:</label>
-                    <select class="piece-select" required>
-                        <option value="" disabled selected>Select a piece</option>
-                        <!-- Options will be populated by JavaScript -->
-                    </select>
-                    <select class="role-select" required>
-                        <option value="" disabled selected>Select a role</option>
-                        <!-- Options will be populated by JavaScript -->
-                    </select>
-                    <button type="button" onclick="removePieceFromGig(this)">Remove</button>
-                </div>
+        <div class="card">
+            <div class="card__header">
+                <h3 class="card__title">Add New Gig</h3>
             </div>
-            <button type="button" onclick="addPieceToGig()">Add Another Piece</button>
-            
-            <br><br>
-            <button type="submit">Add Gig</button>
-            <button type="button" onclick="hideAddGigForm()">Cancel</button>
-        </form>
+            <form id="add-gig-form" class="form">
+                <div class="grid grid--cols-3">
+                    <div class="form-field">
+                        <label for="gig-date">Date</label>
+                        <input type="date" id="gig-date" class="form-input" required>
+                    </div>
+
+                    <div class="form-field">
+                        <label for="gig-church">Church</label>
+                        <select id="gig-church" class="form-input" required>
+                            <option value="" disabled selected>Select a church</option>
+                            <!-- Options will be populated by JavaScript -->
+                        </select>
+                    </div>
+
+                    <div class="form-field">
+                        <label for="gig-fee">Fee</label>
+                        <input type="number" id="gig-fee" class="form-input" step="0.01" min="0">
+                    </div>
+                </div>
+
+                <div class="form-pieces-section">
+                    <h4>Select Pieces</h4>
+                    <div id="gig-pieces-container">
+                        <!-- Pieces will be added dynamically -->
+                    </div>
+                    <button type="button" onclick="addPieceToGig()" class="btn btn--primary">Add Another Piece</button>
+                </div>
+                
+                <div class="card__actions">
+                    <button type="submit" class="btn btn--success">Add Gig</button>
+                    <button type="button" onclick="hideAddGigForm()" class="btn btn--secondary">Cancel</button>
+                </div>
+            </form>
+        </div>
     </div>
 
     <script src="js/common.js"></script>

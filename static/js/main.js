@@ -76,12 +76,52 @@ async function updateChurch(id) {
 
 // Shared function to render gigs
 function renderGigs(gigs) {
-    const gigsList = document.getElementById('gigs-list');
-    gigsList.innerHTML = '';
+    const gigsContainer = document.getElementById('gigs-container');
+    gigsContainer.innerHTML = '';
+    
+    if (gigs.length === 0) {
+        gigsContainer.innerHTML = '<div class="no-gigs-message">No gigs found.</div>';
+        return;
+    }
+    
     gigs.forEach(gig => {
-        const li = document.createElement('li');
-        li.textContent = `${gig.date} - ${gig.church.name}`;
-        gigsList.appendChild(li);
+        const gigCard = document.createElement('div');
+        gigCard.className = 'gig-card';
+        
+        // Format pieces list
+        let piecesHtml = '';
+        if (gig.gig_pieces && gig.gig_pieces.length > 0) {
+            piecesHtml = `
+                <div class="gig-pieces">
+                    <h4>Pieces</h4>
+                    <ul class="pieces-list">
+                        ${gig.gig_pieces.map(gigPiece => `
+                            <li class="piece-item">
+                                <span class="piece-composer">${gigPiece.piece.composer}</span>
+                                <span class="piece-title">${gigPiece.piece.title}</span>
+                                <span class="piece-role">${gigPiece.role}</span>
+                            </li>
+                        `).join('')}
+                    </ul>
+                </div>
+            `;
+        }
+        
+        gigCard.innerHTML = `
+            <div class="gig-header">
+                <div>
+                    <div class="gig-date">${formatDate(gig.date)}</div>
+                    <div class="gig-church">${gig.church.name}</div>
+                    ${gig.fee ? `<div class="gig-fee">$${gig.fee}</div>` : ''}
+                </div>
+                <div class="gig-right-info">
+                    <button class="btn btn--primary btn--sm gig-edit-btn" onclick="editGig(${gig.id})">Edit</button>
+                </div>
+            </div>
+            ${piecesHtml}
+        `;
+        
+        gigsContainer.appendChild(gigCard);
     });
 }
 
@@ -106,13 +146,9 @@ async function filterGigsByChurch(churchId) {
 async function fetchPieces() {
     try {
         const pieces = await fetchData('/pieces/');
-        const piecesList = document.getElementById('pieces-list');
-        piecesList.innerHTML = '';
-        pieces.forEach(piece => {
-            const li = document.createElement('li');
-            li.textContent = `${piece.composer} - ${piece.title}`;
-            piecesList.appendChild(li);
-        });
+        // Pieces are displayed on pieces.html, not main page
+        // This function mainly updates the composer autocomplete
+        createComposerAutocomplete(pieces, 'composer-list');
     } catch (error) {
         console.error('Error fetching pieces:', error);
     }
@@ -541,3 +577,22 @@ document.addEventListener('click', () => {
         row.classList.remove('keyboard-focus');
     });
 });
+
+// Additional helper functions for gig functionality
+function editGig(gigId) {
+    // TODO: Implement gig editing functionality
+    console.log('Edit gig:', gigId);
+    alert('Gig editing functionality not yet implemented');
+}
+
+function toggleShowAllGigs() {
+    // TODO: Implement show all gigs functionality
+    console.log('Toggle show all gigs');
+    fetchGigs(); // For now, just refresh all gigs
+}
+
+function loadMoreGigs() {
+    // TODO: Implement pagination/load more functionality
+    console.log('Load more gigs');
+    alert('Load more gigs functionality not yet implemented');
+}

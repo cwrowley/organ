@@ -45,10 +45,10 @@ class Gig(Base):
     gig_pieces: Mapped[list[GigPiece]] = relationship(back_populates='gig')
 
 class Role(enum.Enum):
-    PRELUDE = "Prelude"
-    OFFERTORY = "Offertory"
-    POSTLUDE = "Postlude"
-    OTHER = "Other"
+    PRELUDE = "PRELUDE"
+    OFFERTORY = "OFFERTORY"
+    POSTLUDE = "POSTLUDE"
+    OTHER = "OTHER"
 
 class GigPiece(Base):
     __tablename__ = 'gig_pieces'
