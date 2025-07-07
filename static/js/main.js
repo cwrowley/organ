@@ -100,7 +100,7 @@ function renderGigs(gigs) {
                             <li class="piece-item">
                                 <span class="piece-composer">${gigPiece.piece.composer}</span>
                                 <span class="piece-title">${gigPiece.piece.title}</span>
-                                <span class="piece-role">${gigPiece.role}</span>
+                                <span class="piece-role">${roleEnumToDisplayString(gigPiece.role)}</span>
                             </li>
                         `).join('')}
                     </ul>
@@ -348,16 +348,6 @@ async function populateSinglePieceDropdown(select) {
     } catch (error) {
         console.error('Error fetching pieces for new dropdown:', error);
     }
-}
-
-// Helper function to get the valid roles from the backend enum
-function getValidRoles() {
-    return [
-        { value: 'PRELUDE', label: 'Prelude' },
-        { value: 'POSTLUDE', label: 'Postlude' },
-        { value: 'OFFERTORY', label: 'Offertory' },
-        { value: 'OTHER', label: 'Other' }
-    ];
 }
 
 // Helper function to populate a single select element with role options

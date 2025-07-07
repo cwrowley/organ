@@ -99,3 +99,25 @@ async function initializeChurchMap() {
 function getChurchName(churchId) {
     return globalChurchMap[churchId] || `Church ID ${churchId}`;
 }
+
+// Role enum conversion utility
+function roleEnumToDisplayString(roleEnum) {
+    const roleMap = {
+        'PRELUDE': 'Prelude',
+        'OFFERTORY': 'Offertory',
+        'POSTLUDE': 'Postlude',
+        'OTHER': 'Other'
+    };
+    
+    return roleMap[roleEnum] || roleEnum;
+}
+
+// Helper function to get all valid roles with their display strings
+function getValidRoles() {
+    return [
+        { value: 'PRELUDE', label: 'Prelude' },
+        { value: 'POSTLUDE', label: 'Postlude' },
+        { value: 'OFFERTORY', label: 'Offertory' },
+        { value: 'OTHER', label: 'Other' }
+    ];
+}
