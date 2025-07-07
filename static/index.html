@@ -28,34 +28,6 @@
             <tbody id="churches-table-body"></tbody>
         </table>
 
-        <div class="card">
-            <div class="card__header">
-                <h3 class="card__title">Add Church</h3>
-            </div>
-            <form id="add-church-form" class="form">
-                <div class="grid grid--cols-4">
-                    <input type="text" id="church-name" class="form-input" placeholder="Church Name" required>
-                    <input type="text" id="church-location" class="form-input" placeholder="Location">
-                    <input type="text" id="church-info" class="form-input" placeholder="Info">
-                    <button type="submit" class="btn btn--success">Add Church</button>
-                </div>
-            </form>
-        </div>
-
-        <div class="card">
-            <div class="card__header">
-                <h3 class="card__title">Add Piece</h3>
-            </div>
-            <form id="add-piece-form" class="form">
-                <div class="grid grid--cols-4">
-                    <input type="text" id="piece-title" class="form-input" placeholder="Title" required>
-                    <input type="text" id="piece-composer" list="composer-list" class="form-input" placeholder="Composer" required>
-                    <input type="number" id="piece-duration" class="form-input" placeholder="Duration (seconds)">
-                    <button type="submit" class="btn btn--success">Add Piece</button>
-                    <datalist id="composer-list"></datalist>
-                </div>
-            </form>
-        </div>
     </section>
 
     <!-- Gigs Section -->
@@ -115,6 +87,38 @@
         <div id="gigs-pagination" class="pagination" style="display: none;">
             <button id="load-more-gigs" onclick="loadMoreGigs()" class="btn btn--primary">Load More Gigs</button>
             <span id="gigs-count-info" class="pagination__info"></span>
+        </div>
+    </section>
+
+    <!-- Add Church and Piece Forms -->
+    <section>
+        <div class="card">
+            <div class="card__header">
+                <h3 class="card__title">Add Church</h3>
+            </div>
+            <form id="add-church-form" class="form">
+                <div class="grid grid--cols-4">
+                    <input type="text" id="church-name" class="form-input" placeholder="Church Name" required>
+                    <input type="text" id="church-location" class="form-input" placeholder="Location">
+                    <input type="text" id="church-info" class="form-input" placeholder="Info">
+                    <button type="submit" class="btn btn--success">Add Church</button>
+                </div>
+            </form>
+        </div>
+
+        <div class="card">
+            <div class="card__header">
+                <h3 class="card__title">Add Piece</h3>
+            </div>
+            <form id="add-piece-form" class="form">
+                <div class="grid grid--cols-4">
+                    <input type="text" id="piece-title" class="form-input" placeholder="Title" required>
+                    <input type="text" id="piece-composer" list="composer-list" class="form-input" placeholder="Composer" required>
+                    <input type="number" id="piece-duration" class="form-input" placeholder="Duration (seconds)">
+                    <button type="submit" class="btn btn--success">Add Piece</button>
+                    <datalist id="composer-list"></datalist>
+                </div>
+            </form>
         </div>
     </section>
 
