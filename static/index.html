@@ -33,21 +33,10 @@
                 <h3 class="card__title">Add Church</h3>
             </div>
             <form id="add-church-form" class="form">
-                <div class="grid grid--cols-3">
-                    <div class="form-field">
-                        <label for="church-name">Church Name</label>
-                        <input type="text" id="church-name" class="form-input" required>
-                    </div>
-                    <div class="form-field">
-                        <label for="church-location">Location</label>
-                        <input type="text" id="church-location" class="form-input">
-                    </div>
-                    <div class="form-field">
-                        <label for="church-info">Info</label>
-                        <input type="text" id="church-info" class="form-input">
-                    </div>
-                </div>
-                <div class="card__actions">
+                <div class="grid grid--cols-4">
+                    <input type="text" id="church-name" class="form-input" placeholder="Church Name" required>
+                    <input type="text" id="church-location" class="form-input" placeholder="Location">
+                    <input type="text" id="church-info" class="form-input" placeholder="Info">
                     <button type="submit" class="btn btn--success">Add Church</button>
                 </div>
             </form>
@@ -58,23 +47,12 @@
                 <h3 class="card__title">Add Piece</h3>
             </div>
             <form id="add-piece-form" class="form">
-                <div class="grid grid--cols-3">
-                    <div class="form-field">
-                        <label for="piece-title">Title</label>
-                        <input type="text" id="piece-title" class="form-input" required>
-                    </div>
-                    <div class="form-field">
-                        <label for="piece-composer">Composer</label>
-                        <input type="text" id="piece-composer" list="composer-list" class="form-input" required>
-                        <datalist id="composer-list"></datalist>
-                    </div>
-                    <div class="form-field">
-                        <label for="piece-duration">Duration (seconds)</label>
-                        <input type="number" id="piece-duration" class="form-input">
-                    </div>
-                </div>
-                <div class="card__actions">
+                <div class="grid grid--cols-4">
+                    <input type="text" id="piece-title" class="form-input" placeholder="Title" required>
+                    <input type="text" id="piece-composer" list="composer-list" class="form-input" placeholder="Composer" required>
+                    <input type="number" id="piece-duration" class="form-input" placeholder="Duration (seconds)">
                     <button type="submit" class="btn btn--success">Add Piece</button>
+                    <datalist id="composer-list"></datalist>
                 </div>
             </form>
         </div>

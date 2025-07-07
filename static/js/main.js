@@ -94,13 +94,14 @@ function renderGigs(gigs) {
         if (gig.gig_pieces && gig.gig_pieces.length > 0) {
             piecesHtml = `
                 <div class="gig-pieces">
-                    <h4>Pieces</h4>
                     <ul class="pieces-list">
                         ${gig.gig_pieces.map(gigPiece => `
                             <li class="piece-item">
-                                <span class="piece-composer">${gigPiece.piece.composer}</span>
-                                <span class="piece-title">${gigPiece.piece.title}</span>
                                 <span class="piece-role">${roleEnumToDisplayString(gigPiece.role)}</span>
+                                <div class="piece-details">
+                                    <span class="piece-composer">${gigPiece.piece.composer}</span>
+                                    <span class="piece-title">${gigPiece.piece.title}</span>
+                                </div>
                             </li>
                         `).join('')}
                     </ul>
@@ -113,10 +114,10 @@ function renderGigs(gigs) {
                 <div>
                     <div class="gig-date">${formatDate(gig.date)}</div>
                     <div class="gig-church">${gig.church.name}</div>
-                    ${gig.fee ? `<div class="gig-fee">$${gig.fee}</div>` : ''}
                 </div>
                 <div class="gig-right-info">
                     <button class="btn btn--primary btn--sm gig-edit-btn" onclick="editGig(${gig.id})">Edit</button>
+                    ${gig.fee ? `<div class="gig-fee">$${gig.fee}</div>` : ''}
                 </div>
             </div>
             ${piecesHtml}

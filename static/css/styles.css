@@ -308,6 +308,10 @@ select {
     grid-template-columns: repeat(3, 1fr);
 }
 
+.grid--cols-4 {
+    grid-template-columns: repeat(4, 1fr);
+}
+
 .grid--cols-2 {
     grid-template-columns: repeat(2, 1fr);
 }
@@ -538,22 +542,15 @@ table tr:hover {
     list-style: none;
     padding: 0;
     margin: 0;
+    display: grid;
+    grid-template-columns: auto 1fr;
+    gap: var(--spacing-sm);
 }
 
 .piece-item {
-    padding: 0.3rem 0;
+    display: contents;
     color: var(--color-text-light);
     font-size: 0.95rem;
-}
-
-.piece-composer {
-    font-weight: 500;
-    color: var(--color-heading);
-}
-
-.piece-title {
-    margin-left: var(--spacing-sm);
-    font-style: italic;
 }
 
 .piece-role {
@@ -563,8 +560,26 @@ table tr:hover {
     padding: 0.2rem var(--spacing-sm);
     border-radius: 3px;
     font-size: var(--font-size-sm);
-    margin-left: var(--spacing-sm);
+    white-space: nowrap;
     font-weight: 500;
+    margin: 0.3rem 0;
+    align-self: center;
+}
+
+.piece-details {
+    display: flex;
+    gap: var(--spacing-sm);
+    align-items: center;
+    padding: 0.3rem 0;
+}
+
+.piece-composer {
+    font-weight: 500;
+    color: var(--color-heading);
+}
+
+.piece-title {
+    font-style: italic;
 }
 
 /* Gig editing states */
@@ -738,6 +753,7 @@ table tr:hover {
     }
     
     .grid--cols-3,
+    .grid--cols-4,
     .grid--cols-2 {
         grid-template-columns: 1fr;
         gap: var(--spacing-sm);
