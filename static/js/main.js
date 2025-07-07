@@ -12,6 +12,11 @@ document.addEventListener("DOMContentLoaded", async () => {
     await populateComposerAutocomplete();
 });
 
+// Pagination state
+let allGigs = [];
+let displayedGigsCount = 0;
+const GIGS_PER_PAGE = 5;
+
 async function fetchChurches() {
     try {
         const churches = await fetchData('/churches/');
@@ -74,20 +79,35 @@ async function updateChurch(id) {
     }
 }
 
-// Shared function to render gigs
-function renderGigs(gigs) {
+// Shared function to render gigs with pagination support
+function renderGigs(gigs, reset = true) {
     const gigsContainer = document.getElementById('gigs-container');
-    gigsContainer.innerHTML = '';
+    const paginationContainer = document.getElementById('gigs-pagination');
+    const gigsCountInfo = document.getElementById('gigs-count-info');
+    const loadMoreButton = document.getElementById('load-more-gigs');
     
-    if (gigs.length === 0) {
+    if (reset) {
+        // Store all gigs and reset displayed count
+        allGigs = gigs;
+        displayedGigsCount = 0;
+        gigsContainer.innerHTML = '';
+    }
+    
+    if (allGigs.length === 0) {
         gigsContainer.innerHTML = '<div class="no-gigs-message">No gigs found.</div>';
+        paginationContainer.style.display = 'none';
         return;
     }
     
-    gigs.forEach(gig => {
+    // Calculate how many gigs to show
+    const gigsToShow = Math.min(displayedGigsCount + GIGS_PER_PAGE, allGigs.length);
+    
+    // Render new gigs (from displayedGigsCount to gigsToShow)
+    for (let i = displayedGigsCount; i < gigsToShow; i++) {
+        const gig = allGigs[i];
         const gigCard = document.createElement('div');
         gigCard.className = 'gig-card';
-        gigCard.dataset.gigId = gig.id; // Add data attribute for finding the card
+        gigCard.dataset.gigId = gig.id;
         
         // Format pieces list
         let piecesHtml = '';
@@ -124,7 +144,31 @@ function renderGigs(gigs) {
         `;
         
         gigsContainer.appendChild(gigCard);
-    });
+    }
+    
+    // Update displayed count
+    displayedGigsCount = gigsToShow;
+    
+    // Update pagination info and button
+    gigsCountInfo.textContent = `Showing ${displayedGigsCount} of ${allGigs.length} gigs`;
+    
+    // Show/hide pagination controls and Show All button
+    const showAllButton = document.getElementById('show-all-gigs-btn');
+    if (allGigs.length > GIGS_PER_PAGE) {
+        paginationContainer.style.display = 'block';
+        showAllButton.style.display = 'inline-block';
+        
+        // Show/hide load more button
+        if (displayedGigsCount < allGigs.length) {
+            loadMoreButton.style.display = 'inline-block';
+            loadMoreButton.textContent = `Load More Gigs (${Math.min(GIGS_PER_PAGE, allGigs.length - displayedGigsCount)} more)`;
+        } else {
+            loadMoreButton.style.display = 'none';
+        }
+    } else {
+        paginationContainer.style.display = 'none';
+        showAllButton.style.display = 'none';
+    }
 }
 
 async function fetchGigs() {
@@ -142,6 +186,34 @@ async function filterGigsByChurch(churchId) {
         renderGigs(gigs);
     } catch (error) {
         console.error('Error fetching gigs for church:', error);
+    }
+}
+
+// Load more gigs function for pagination
+function loadMoreGigs() {
+    // Render the next batch of gigs without resetting
+    renderGigs(allGigs, false);
+}
+
+// Toggle showing all gigs vs paginated view
+function toggleShowAllGigs() {
+    const showAllButton = document.getElementById('show-all-gigs-btn');
+    const paginationContainer = document.getElementById('gigs-pagination');
+    
+    if (showAllButton.textContent === 'Show All Gigs') {
+        // Show all gigs
+        displayedGigsCount = 0;
+        renderGigs(allGigs, false);
+        // Force show all gigs by setting displayedGigsCount to total
+        displayedGigsCount = allGigs.length;
+        
+        // Update button and hide pagination
+        showAllButton.textContent = 'Show Paginated';
+        paginationContainer.style.display = 'none';
+    } else {
+        // Return to paginated view
+        renderGigs(allGigs, true); // Reset pagination
+        showAllButton.textContent = 'Show All Gigs';
     }
 }
 
