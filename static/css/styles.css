@@ -103,48 +103,58 @@ h3 { font-size: 1.25rem; }
 }
 
 /* Button variants */
+button.btn--primary,
 .btn--primary {
     background-color: var(--color-primary);
     color: var(--color-white);
 }
 
+button.btn--primary:hover:not(:disabled),
 .btn--primary:hover:not(:disabled) {
     background-color: var(--color-primary-dark);
 }
 
+button.btn--success,
 .btn--success {
     background-color: var(--color-success);
     color: var(--color-white);
 }
 
+button.btn--success:hover:not(:disabled),
 .btn--success:hover:not(:disabled) {
     background-color: var(--color-success-dark);
 }
 
+button.btn--danger,
 .btn--danger {
     background-color: var(--color-danger);
     color: var(--color-white);
 }
 
+button.btn--danger:hover:not(:disabled),
 .btn--danger:hover:not(:disabled) {
     background-color: var(--color-danger-dark);
 }
 
+button.btn--secondary,
 .btn--secondary {
     background-color: var(--color-secondary);
     color: var(--color-white);
 }
 
+button.btn--secondary:hover:not(:disabled),
 .btn--secondary:hover:not(:disabled) {
     background-color: var(--color-secondary-dark);
 }
 
 /* Button sizes */
+button.btn--sm,
 .btn--sm {
     padding: 0.4rem 0.8rem;
     font-size: var(--font-size-sm);
 }
 
+button.btn--lg,
 .btn--lg {
     padding: 0.75rem 1.5rem;
     font-size: var(--font-size-lg);
@@ -563,6 +573,116 @@ table tr:hover {
     box-shadow: var(--shadow-lg);
 }
 
+.gig-card--editing {
+    border-color: var(--color-primary);
+    box-shadow: var(--shadow-md);
+    background-color: #f8f9fa;
+}
+
+/* Inline edit form styles */
+.inline-edit-form {
+    padding: var(--spacing-lg);
+}
+
+.edit-form-header {
+    margin-bottom: var(--spacing-md);
+    padding-bottom: var(--spacing-sm);
+    border-bottom: 1px solid var(--color-border-light);
+}
+
+.edit-form-header h4 {
+    margin: 0;
+    color: var(--color-heading);
+    font-size: var(--font-size-lg);
+}
+
+.edit-form-basic-fields {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: var(--spacing-md);
+    margin-bottom: var(--spacing-md);
+}
+
+.edit-form-basic-fields .form-field {
+    margin-bottom: 0;
+}
+
+.edit-form-actions {
+    display: flex;
+    gap: var(--spacing-sm);
+    justify-content: flex-end;
+    margin-top: var(--spacing-lg);
+    padding-top: var(--spacing-md);
+    border-top: 1px solid var(--color-border-light);
+}
+
+.inline-pieces-container .piece-role-pair {
+    display: grid;
+    grid-template-columns: auto 1fr 1fr auto;
+    gap: var(--spacing-sm);
+    align-items: center;
+    margin-bottom: var(--spacing-sm);
+    padding: var(--spacing-sm);
+    background: var(--color-white);
+    border: 1px solid var(--color-border-light);
+    border-radius: var(--border-radius);
+}
+
+.inline-pieces-container .piece-role-pair label {
+    font-weight: 500;
+    margin-bottom: 0;
+    white-space: nowrap;
+}
+
+/* Form pieces section for inline edit */
+.inline-edit-form .form-pieces-section {
+    margin-bottom: var(--spacing-md);
+}
+
+.inline-edit-form .form-pieces-section h5 {
+    margin: 0 0 var(--spacing-sm) 0;
+    font-size: var(--font-size-base);
+    color: var(--color-heading);
+    font-weight: 600;
+}
+
+/* Specific overrides for inline edit form buttons */
+.inline-edit-form button.btn--success {
+    background-color: var(--color-success) !important;
+    color: var(--color-white) !important;
+}
+
+.inline-edit-form button.btn--success:hover:not(:disabled) {
+    background-color: var(--color-success-dark) !important;
+}
+
+.inline-edit-form button.btn--danger {
+    background-color: var(--color-danger) !important;
+    color: var(--color-white) !important;
+}
+
+.inline-edit-form button.btn--danger:hover:not(:disabled) {
+    background-color: var(--color-danger-dark) !important;
+}
+
+.inline-edit-form button.btn--primary {
+    background-color: var(--color-primary) !important;
+    color: var(--color-white) !important;
+}
+
+.inline-edit-form button.btn--primary:hover:not(:disabled) {
+    background-color: var(--color-primary-dark) !important;
+}
+
+.inline-edit-form button.btn--secondary {
+    background-color: var(--color-secondary) !important;
+    color: var(--color-white) !important;
+}
+
+.inline-edit-form button.btn--secondary:hover:not(:disabled) {
+    background-color: var(--color-secondary-dark) !important;
+}
+
 /* No gigs message */
 .no-gigs-message {
     text-align: center;
@@ -844,4 +964,35 @@ table tr:hover {
 
 .cancel-btn:hover:not(:disabled) {
     background-color: var(--color-secondary-dark);
+}
+
+/* Responsive styles for inline edit form */
+@media (max-width: 768px) {
+    .edit-form-basic-fields {
+        grid-template-columns: 1fr;
+        gap: var(--spacing-sm);
+    }
+    
+    .inline-pieces-container .piece-role-pair {
+        grid-template-columns: 1fr;
+        gap: var(--spacing-xs);
+        text-align: left;
+    }
+    
+    .inline-pieces-container .piece-role-pair label {
+        font-weight: 600;
+        margin-bottom: var(--spacing-xs);
+    }
+    
+    .edit-form-actions {
+        flex-direction: column;
+    }
+    
+    .edit-form-actions button {
+        width: 100%;
+    }
+    
+    .inline-edit-form {
+        padding: var(--spacing-md);
+    }
 }

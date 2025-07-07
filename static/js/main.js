@@ -87,6 +87,7 @@ function renderGigs(gigs) {
     gigs.forEach(gig => {
         const gigCard = document.createElement('div');
         gigCard.className = 'gig-card';
+        gigCard.dataset.gigId = gig.id; // Add data attribute for finding the card
         
         // Format pieces list
         let piecesHtml = '';
@@ -257,14 +258,7 @@ function selectNewPieceInGigForm(newPieceId) {
 // Helper function to scroll to the Add Gig form
 function scrollToAddGigForm() {
     const addGigFormContainer = document.getElementById('add-gig-form-container');
-    const addGigHeading = addGigFormContainer.querySelector('h3');
-    if (addGigHeading) {
-        addGigHeading.scrollIntoView({ 
-            behavior: 'smooth',
-            block: 'start'
-        });
-    } else {
-        // Fallback to scrolling to the container itself
+    if (addGigFormContainer) {
         addGigFormContainer.scrollIntoView({ 
             behavior: 'smooth',
             block: 'start'
@@ -275,11 +269,19 @@ function scrollToAddGigForm() {
 function showAddGigForm() {
     document.getElementById('add-gig-form-container').style.display = 'block';
     
+    // Cancel any inline edits that might be in progress
+    const editingCards = document.querySelectorAll('.gig-card--editing');
+    editingCards.forEach(card => {
+        const cancelButton = card.querySelector('.edit-form-actions button[onclick*="cancelInlineEdit"]');
+        if (cancelButton) {
+            cancelInlineEdit(cancelButton);
+        }
+    });
+    
     // Clear any existing pieces from the form except the first one
     const container = document.getElementById('gig-pieces-container');
     container.innerHTML = `
-        <div class="piece-role-pair">
-            <label>Piece 1:</label>
+        <div class="form-piece-row">
             <select class="piece-select" required>
                 <option value="" disabled selected>Select a piece</option>
             </select>
@@ -311,10 +313,9 @@ function addPieceToGig() {
     const container = document.getElementById('gig-pieces-container');
     const pieceCount = container.children.length + 1;
     const pieceDiv = document.createElement('div');
-    pieceDiv.className = 'piece-role-pair';
+    pieceDiv.className = 'form-piece-row';
     
     pieceDiv.innerHTML = `
-        <label>Piece ${pieceCount}:</label>
         <select class="piece-select" required>
             <option value="" disabled selected>Select a piece</option>
         </select>
@@ -351,7 +352,12 @@ async function populateSinglePieceDropdown(select) {
 
 // Helper function to get the valid roles from the backend enum
 function getValidRoles() {
-    return ['Prelude', 'Postlude', 'Offertory', 'Other'];
+    return [
+        { value: 'PRELUDE', label: 'Prelude' },
+        { value: 'POSTLUDE', label: 'Postlude' },
+        { value: 'OFFERTORY', label: 'Offertory' },
+        { value: 'OTHER', label: 'Other' }
+    ];
 }
 
 // Helper function to populate a single select element with role options
@@ -365,8 +371,8 @@ function populateSelectWithRoles(select) {
     
     roles.forEach(role => {
         const option = document.createElement('option');
-        option.value = role;
-        option.textContent = role;
+        option.value = role.value;
+        option.textContent = role.label;
         select.appendChild(option);
     });
 }
@@ -383,7 +389,7 @@ async function addGig(event) {
     const churchId = parseInt(document.getElementById('gig-church').value);
     
     // Collect pieces data
-    const pieceEntries = document.querySelectorAll('.piece-role-pair');
+    const pieceEntries = document.querySelectorAll('#gig-pieces-container .form-piece-row');
     const pieces = [];
     
     for (const entry of pieceEntries) {
@@ -559,6 +565,15 @@ document.addEventListener('keydown', (event) => {
             event.preventDefault();
         }
         return;
+    } else if (event.key.toLowerCase() === 'e' && !event.ctrlKey && !event.metaKey && focusedIndex !== -1) {
+        // Edit the focused row's church by finding and clicking its edit button
+        const row = rows[focusedIndex];
+        const editButton = row.querySelector('button');
+        if (editButton) {
+            editButton.click();
+            event.preventDefault();
+        }
+        return;
     } else {
         return; // Ignore other keys
     }
@@ -579,20 +594,300 @@ document.addEventListener('click', () => {
 });
 
 // Additional helper functions for gig functionality
-function editGig(gigId) {
-    // TODO: Implement gig editing functionality
-    console.log('Edit gig:', gigId);
-    alert('Gig editing functionality not yet implemented');
+async function editGig(gigId) {
+    try {
+        // Fetch the gig data
+        const gig = await fetchData(`/gigs/${gigId}`);
+        
+        // Find the gig card and replace it with the edit form
+        const gigCard = document.querySelector(`[data-gig-id="${gigId}"]`);
+        if (!gigCard) {
+            console.error('Could not find gig card for ID:', gigId);
+            return;
+        }
+        
+        // Hide the add gig form if it's visible
+        document.getElementById('add-gig-form-container').style.display = 'none';
+        
+        // Replace the gig card with the edit form
+        await replaceGigCardWithEditForm(gigCard, gig);
+        
+    } catch (error) {
+        console.error('Error fetching gig for editing:', error);
+        alert('Error loading gig data for editing.');
+    }
 }
 
-function toggleShowAllGigs() {
-    // TODO: Implement show all gigs functionality
-    console.log('Toggle show all gigs');
-    fetchGigs(); // For now, just refresh all gigs
+async function replaceGigCardWithEditForm(gigCard, gig) {
+    // Store the original gig card content for potential restoration
+    gigCard.dataset.originalContent = gigCard.innerHTML;
+    
+    // Create the inline edit form
+    const editFormHtml = await createInlineEditForm(gig);
+    
+    // Replace the card content with the edit form
+    gigCard.innerHTML = editFormHtml;
+    gigCard.classList.add('gig-card--editing');
+    
+    // Populate dropdowns after the form is in the DOM
+    await populateInlineEditDropdowns(gigCard, gig);
 }
 
-function loadMoreGigs() {
-    // TODO: Implement pagination/load more functionality
-    console.log('Load more gigs');
-    alert('Load more gigs functionality not yet implemented');
+async function createInlineEditForm(gig) {
+    // Create pieces HTML for the existing pieces
+    let piecesHtml = '';
+    if (gig.gig_pieces && gig.gig_pieces.length > 0) {
+        gig.gig_pieces.forEach((gigPiece, index) => {
+            piecesHtml += `
+                <div class="piece-role-pair">
+                    <label>Piece ${index + 1}:</label>
+                    <select class="piece-select" data-piece-id="${gigPiece.piece.id}" required>
+                        <option value="" disabled>Select a piece</option>
+                    </select>
+                    <select class="role-select" data-role="${gigPiece.role}" required>
+                        <option value="" disabled>Select a role</option>
+                    </select>
+                    <button type="button" onclick="removeInlinePiece(this)" class="btn btn--danger btn--sm">Remove</button>
+                </div>
+            `;
+        });
+    } else {
+        piecesHtml = `
+            <div class="piece-role-pair">
+                <label>Piece 1:</label>
+                <select class="piece-select" required>
+                    <option value="" disabled selected>Select a piece</option>
+                </select>
+                <select class="role-select" required>
+                    <option value="" disabled selected>Select a role</option>
+                </select>
+                <button type="button" onclick="removeInlinePiece(this)" class="btn btn--danger btn--sm">Remove</button>
+            </div>
+        `;
+    }
+    
+    return `
+        <form class="inline-edit-form" data-gig-id="${gig.id}">
+            <div class="edit-form-header">
+                <h4>Edit Gig</h4>
+            </div>
+            
+            <div class="edit-form-basic-fields">
+                <div class="form-field">
+                    <label for="inline-gig-date-${gig.id}">Date</label>
+                    <input type="date" id="inline-gig-date-${gig.id}" value="${gig.date}" class="form-input" required>
+                </div>
+                
+                <div class="form-field">
+                    <label for="inline-gig-church-${gig.id}">Church</label>
+                    <select id="inline-gig-church-${gig.id}" data-church-id="${gig.church.id}" class="form-input" required>
+                        <option value="" disabled>Select a church</option>
+                    </select>
+                </div>
+                
+                <div class="form-field">
+                    <label for="inline-gig-fee-${gig.id}">Fee</label>
+                    <input type="number" id="inline-gig-fee-${gig.id}" value="${gig.fee || ''}" class="form-input" step="0.01" min="0">
+                </div>
+            </div>
+            
+            <div class="form-pieces-section">
+                <h5>Pieces</h5>
+                <div class="inline-pieces-container">
+                    ${piecesHtml}
+                </div>
+                <button type="button" onclick="addInlinePiece(this)" class="btn btn--primary">Add Another Piece</button>
+            </div>
+            
+            <div class="edit-form-actions">
+                <button type="button" onclick="saveInlineEdit(this)" class="btn btn--success">Save</button>
+                <button type="button" onclick="cancelInlineEdit(this)" class="btn btn--secondary">Cancel</button>
+            </div>
+        </form>
+    `;
+}
+
+async function populateInlineEditDropdowns(gigCard, gig) {
+    // Populate church dropdown
+    const churchSelect = gigCard.querySelector(`#inline-gig-church-${gig.id}`);
+    try {
+        const churches = await fetchData('/churches/');
+        churches.forEach(church => {
+            const option = document.createElement('option');
+            option.value = church.id;
+            option.textContent = church.name;
+            if (church.id === gig.church.id) {
+                option.selected = true;
+            }
+            churchSelect.appendChild(option);
+        });
+    } catch (error) {
+        console.error('Error fetching churches for inline edit:', error);
+    }
+    
+    // Populate piece dropdowns
+    const pieceSelects = gigCard.querySelectorAll('.piece-select');
+    const roleSelects = gigCard.querySelectorAll('.role-select');
+    
+    try {
+        const pieces = await fetchData('/pieces/');
+        
+        pieceSelects.forEach(select => {
+            const selectedPieceId = select.dataset.pieceId;
+            pieces.forEach(piece => {
+                const option = document.createElement('option');
+                option.value = piece.id;
+                option.textContent = `${piece.composer} - ${piece.title}`;
+                if (selectedPieceId && piece.id == selectedPieceId) {
+                    option.selected = true;
+                }
+                select.appendChild(option);
+            });
+        });
+        
+        // Populate role dropdowns
+        const roles = getValidRoles();
+        roleSelects.forEach(select => {
+            const selectedRole = select.dataset.role;
+            roles.forEach(role => {
+                const option = document.createElement('option');
+                option.value = role.value;
+                option.textContent = role.label;
+                if (selectedRole && role.value === selectedRole) {
+                    option.selected = true;
+                }
+                select.appendChild(option);
+            });
+        });
+        
+    } catch (error) {
+        console.error('Error fetching pieces for inline edit:', error);
+    }
+}
+
+function addInlinePiece(button) {
+    const form = button.closest('.inline-edit-form');
+    const container = form.querySelector('.inline-pieces-container');
+    const pieceCount = container.children.length + 1;
+    
+    const pieceDiv = document.createElement('div');
+    pieceDiv.className = 'piece-role-pair';
+    
+    pieceDiv.innerHTML = `
+        <label>Piece ${pieceCount}:</label>
+        <select class="piece-select" required>
+            <option value="" disabled selected>Select a piece</option>
+        </select>
+        <select class="role-select" required>
+            <option value="" disabled selected>Select a role</option>
+        </select>
+        <button type="button" onclick="removeInlinePiece(this)" class="btn btn--danger btn--sm">Remove</button>
+    `;
+    
+    container.appendChild(pieceDiv);
+    
+    // Populate the new dropdowns
+    populateNewInlinePieceDropdowns(pieceDiv);
+}
+
+async function populateNewInlinePieceDropdowns(pieceDiv) {
+    const pieceSelect = pieceDiv.querySelector('.piece-select');
+    const roleSelect = pieceDiv.querySelector('.role-select');
+    
+    try {
+        const pieces = await fetchData('/pieces/');
+        pieces.forEach(piece => {
+            const option = document.createElement('option');
+            option.value = piece.id;
+            option.textContent = `${piece.composer} - ${piece.title}`;
+            pieceSelect.appendChild(option);
+        });
+    } catch (error) {
+        console.error('Error fetching pieces for new inline dropdown:', error);
+    }
+    
+    const roles = getValidRoles();
+    roles.forEach(role => {
+        const option = document.createElement('option');
+        option.value = role.value;
+        option.textContent = role.label;
+        roleSelect.appendChild(option);
+    });
+}
+
+function removeInlinePiece(button) {
+    const container = button.closest('.inline-pieces-container');
+    button.parentElement.remove();
+    
+    // Renumber the remaining pieces
+    const pieces = container.querySelectorAll('.piece-role-pair');
+    pieces.forEach((piece, index) => {
+        const label = piece.querySelector('label');
+        label.textContent = `Piece ${index + 1}:`;
+    });
+}
+
+async function saveInlineEdit(button) {
+    const form = button.closest('.inline-edit-form');
+    const gigId = form.dataset.gigId;
+    
+    const date = form.querySelector(`#inline-gig-date-${gigId}`).value;
+    const fee = parseFloat(form.querySelector(`#inline-gig-fee-${gigId}`).value) || 0;
+    const churchId = parseInt(form.querySelector(`#inline-gig-church-${gigId}`).value);
+    
+    // Collect pieces data
+    const pieceEntries = form.querySelectorAll('.piece-role-pair');
+    const pieces = [];
+    
+    for (const entry of pieceEntries) {
+        const pieceId = parseInt(entry.querySelector('.piece-select').value);
+        const role = entry.querySelector('.role-select').value;
+        
+        if (pieceId && role) {
+            pieces.push({
+                piece_id: pieceId,
+                role: role
+            });
+        }
+    }
+    
+    // Validate that we have at least one piece
+    if (pieces.length === 0) {
+        alert('Please select at least one piece for the gig.');
+        return;
+    }
+    
+    const gigData = {
+        date: date,
+        church_id: churchId,
+        fee: fee,
+        pieces: pieces
+    };
+    
+    try {
+        await putData(`/gigs/${gigId}`, gigData);
+        
+        // Refresh the gigs list to show the updated gig
+        const selectedChurchId = getSelectedChurchId();
+        if (selectedChurchId) {
+            filterGigsByChurch(selectedChurchId);
+        } else {
+            fetchGigs();
+        }
+        
+    } catch (error) {
+        console.error('Error updating gig:', error);
+        alert('Error updating gig. Please check the console for details.');
+    }
+}
+
+function cancelInlineEdit(button) {
+    const gigCard = button.closest('.gig-card');
+    const originalContent = gigCard.dataset.originalContent;
+    
+    if (originalContent) {
+        gigCard.innerHTML = originalContent;
+        gigCard.classList.remove('gig-card--editing');
+        delete gigCard.dataset.originalContent;
+    }
 }
