@@ -586,16 +586,19 @@ document.addEventListener('keydown', (event) => {
     const rows = [...document.querySelectorAll('#churches-table-body tr')];
     if (rows.length === 0) return;
 
-    const focusedIndex = rows.findIndex(row => row.classList.contains('keyboard-focus'));
+    const focusedIndex = rows.findIndex(row => row.classList.contains('selected'));
     let newIndex = focusedIndex;
 
     if (event.key === 'ArrowDown') {
-        newIndex = (focusedIndex + 1) % rows.length;
+        // If no row is selected, start from first row, otherwise move down
+        newIndex = focusedIndex === -1 ? 0 : (focusedIndex + 1) % rows.length;
         event.preventDefault();
     } else if (event.key === 'ArrowUp') {
-        newIndex = (focusedIndex - 1 + rows.length) % rows.length;
+        // If no row is selected, start from last row, otherwise move up
+        newIndex = focusedIndex === -1 ? rows.length - 1 : (focusedIndex - 1 + rows.length) % rows.length;
         event.preventDefault();
     } else if (event.key === 'Enter' && focusedIndex !== -1) {
+        // Trigger selection on the currently selected row
         const row = rows[focusedIndex];
         const churchId = row.dataset.churchId;
         selectChurch(row, churchId);
@@ -629,7 +632,7 @@ document.addEventListener('keydown', (event) => {
         }
         return;
     } else if (event.key.toLowerCase() === 'e' && !event.ctrlKey && !event.metaKey && focusedIndex !== -1) {
-        // Edit the focused row's church by finding and clicking its edit button
+        // Edit the currently selected row
         const row = rows[focusedIndex];
         const editButton = row.querySelector('button');
         if (editButton) {
@@ -641,19 +644,24 @@ document.addEventListener('keydown', (event) => {
         return; // Ignore other keys
     }
 
-    // Update keyboard focus
+    // Move selection to new row
     if (focusedIndex !== -1) {
-        rows[focusedIndex].classList.remove('keyboard-focus');
+        rows[focusedIndex].classList.remove('selected');
     }
-    rows[newIndex].classList.add('keyboard-focus');
+    rows[newIndex].classList.add('selected');
     rows[newIndex].focus();
 });
 
-// Remove keyboard focus when clicking elsewhere
-document.addEventListener('click', () => {
-    document.querySelectorAll('.keyboard-focus').forEach(row => {
-        row.classList.remove('keyboard-focus');
-    });
+// Remove selected focus when clicking elsewhere (but not on the churches table)
+document.addEventListener('click', (event) => {
+    const churchesTable = document.getElementById('churches-table-body');
+    const clickedInsideTable = churchesTable && churchesTable.contains(event.target);
+    
+    if (!clickedInsideTable) {
+        document.querySelectorAll('.church-row.selected').forEach(row => {
+            row.classList.remove('selected');
+        });
+    }
 });
 
 // Additional helper functions for gig functionality
