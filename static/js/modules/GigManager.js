@@ -197,6 +197,39 @@ class GigManager {
         }
     }
 
+    handleAddGig(event) {
+        event.preventDefault();
+
+        const form = event.target;
+        const date = form.querySelector('#gig-date').value;
+        const fee = parseFloat(form.querySelector('#gig-fee').value) || 0;
+        const churchId = parseInt(form.querySelector('#gig-church').value);
+
+        const pieceEntries = form.querySelectorAll('#gig-pieces-container .form-piece-row');
+        const pieces = Array.from(pieceEntries).map(entry => {
+            const pieceId = parseInt(entry.querySelector('.piece-select').value);
+            const role = entry.querySelector('.role-select').value;
+            return { piece_id: pieceId, role: role };
+        });
+
+        const gigData = {
+            date: date,
+            church_id: churchId,
+            fee: fee,
+            pieces: pieces
+        };
+
+        ApiService.post('/gigs/', gigData)
+            .then(() => {
+                showNotification('Gig added successfully', 'success');
+                this.loadGigs(churchId);
+            })
+            .catch(error => {
+                console.error('Error adding gig:', error);
+                showNotification('Failed to add gig', 'error');
+            });
+    }
+
     loadMoreGigs() {
         this.renderGigs(this.allGigs, false);
     }
