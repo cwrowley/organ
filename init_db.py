@@ -1,6 +1,8 @@
-from models import Base, Piece, Church, Gig, GigPiece
-from session import engine, SessionLocal
 from datetime import date
+
+from models import Base, Church, Gig, GigPiece, Piece
+from session import SessionLocal, engine
+
 
 def init_db():
     Base.metadata.create_all(bind=engine)

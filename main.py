@@ -1,9 +1,9 @@
-from fastapi import FastAPI
-from fastapi.staticfiles import StaticFiles
-from fastapi.responses import RedirectResponse
 import uvicorn
+from fastapi import FastAPI
+from fastapi.responses import RedirectResponse
+from fastapi.staticfiles import StaticFiles
 
-from routers import churches, pieces, gigs
+from routers import churches, gigs, pieces
 
 app = FastAPI(
     title="Organ Gigs API",

@@ -1,10 +1,13 @@
 from __future__ import annotations
-import enum
-from sqlalchemy import create_engine, ForeignKey, Date, Enum
-from sqlalchemy.orm import relationship, sessionmaker, DeclarativeBase, Mapped, mapped_column
-from typing import Optional
-from typing_extensions import Annotated
+
 import datetime
+import enum
+from typing import Optional
+
+from sqlalchemy import Date, Enum, ForeignKey, create_engine
+from sqlalchemy.orm import (DeclarativeBase, Mapped, mapped_column,
+                            relationship, sessionmaker)
+from typing_extensions import Annotated
 
 __all__ = ["Piece", "Church", "Gig", "GigPiece", "Role"]
 
