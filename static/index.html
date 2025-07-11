@@ -34,9 +34,9 @@
     <section>
         <h2>Gigs</h2>
         <div class="gigs-controls">
-            <button onclick="fetchGigs()" class="btn btn--primary">Refresh Gigs</button>
-            <button id="add-gig-btn" onclick="showAddGigForm()" class="btn btn--success">Add Gig</button>
-            <button id="show-all-gigs-btn" onclick="toggleShowAllGigs()" class="btn btn--secondary" style="display: none;">Show All Gigs</button>
+            <button onclick="window.organGigApp.gigManager.loadGigs()" class="btn btn--primary">Refresh Gigs</button>
+            <button id="add-gig-btn" onclick="window.organGigApp.formManager.showGigForm()" class="btn btn--success">Add Gig</button>
+            <button id="show-all-gigs-btn" onclick="window.organGigApp.gigManager.showAllGigs()" class="btn btn--secondary" style="display: none;">Show All Gigs</button>
         </div>
 
         <!-- Add Gig Form (initially hidden) -->
@@ -71,12 +71,12 @@
                         <div id="gig-pieces-container">
                             <!-- Pieces will be added dynamically -->
                         </div>
-                        <button type="button" onclick="addPieceToGig()" class="btn btn--primary">Add Another Piece</button>
+                        <button type="button" onclick="window.organGigApp.gigManager.addPieceToGig()" class="btn btn--primary">Add Another Piece</button>
                     </div>
                     
                     <div class="card__actions">
                         <button type="submit" class="btn btn--success">Add Gig</button>
-                        <button type="button" onclick="hideAddGigForm()" class="btn btn--secondary">Cancel</button>
+                        <button type="button" onclick="window.organGigApp.formManager.hideGigForm()" class="btn btn--secondary">Cancel</button>
                     </div>
                 </form>
             </div>
@@ -85,7 +85,7 @@
         <div id="gigs-container"></div>
         
         <div id="gigs-pagination" class="pagination" style="display: none;">
-            <button id="load-more-gigs" onclick="loadMoreGigs()" class="btn btn--primary">Load More Gigs</button>
+            <button id="load-more-gigs" onclick="window.organGigApp.gigManager.loadMoreGigs()" class="btn btn--primary">Load More Gigs</button>
             <span id="gigs-count-info" class="pagination__info"></span>
         </div>
     </section>
@@ -98,9 +98,9 @@
             </div>
             <form id="add-church-form" class="form">
                 <div class="grid grid--cols-4">
-                    <input type="text" id="church-name" class="form-input" placeholder="Church Name" required>
-                    <input type="text" id="church-location" class="form-input" placeholder="Location">
-                    <input type="text" id="church-info" class="form-input" placeholder="Info">
+                    <input type="text" id="church-name" name="name" class="form-input" placeholder="Church Name" required>
+                    <input type="text" id="church-location" name="location" class="form-input" placeholder="Location">
+                    <input type="text" id="church-info" name="info" class="form-input" placeholder="Info">
                     <button type="submit" class="btn btn--success">Add Church</button>
                 </div>
             </form>
@@ -121,12 +121,6 @@
             </form>
         </div>
     </section>
-
-    <!-- Legacy JavaScript - Will be phased out -->
-    <script src="js/common.js"></script>
-    <script src="js/main.js"></script>
-    
-    <!-- New Modular JavaScript Architecture -->
     <script type="module" src="js/app.js"></script>
 </body>
 </html>
