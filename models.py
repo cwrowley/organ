@@ -22,6 +22,7 @@ class Piece(Base):
     title: Mapped[str]
     composer: Mapped[str]
     duration: Mapped[Optional[int]]
+    notes: Mapped[Optional[str]] # e.g., "Orgelbuchlein, p40", "Appropriate for Good Friday"
 
     # relationship to GigPieces
     gig_pieces: Mapped[list[GigPiece]] = relationship(back_populates='piece')
@@ -42,6 +43,7 @@ class Gig(Base):
     date: Mapped[datetime.date] = mapped_column(Date)
     church_id: Mapped[int] = mapped_column(ForeignKey('churches.id'))
     fee: Mapped[Optional[float]]
+    occasion: Mapped[Optional[str]]  # e.g., "Sunday Service", "Wedding", etc.
 
     # relationships
     church: Mapped[Church] = relationship(back_populates='gigs')
@@ -66,30 +68,3 @@ class GigPiece(Base):
 
 engine = create_engine('sqlite:///organ_gigs.db')
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
-
-def make_db():
-    Base.metadata.create_all(engine)
-    print("Database and tables created.")
-
-def populate_initial_data():
-    db = SessionLocal()
-    pieces = [
-        Piece(title="Prelude in C Major, BWV 547", composer="J.S. Bach", duration=300),
-        Piece(title="Fugue in C major, BWV 547", composer="J.S. Bach", duration=400),
-        Piece(title="Psalm XIX", composer="Benedetto Marcello", duration=250),
-    ]
-    db.bulk_save_objects(pieces)
-    churches = [
-        Church(name="All Saints Church", location="Princeton, NJ", info="Door combination: 1234"),
-        Church(name="Trinity Episcopal Church", location="Princeton, NJ", info="Door combination: 5678"),
-        Church(name="Dutch Neck Presbyterian Church", location="Dutch Neck, NJ"),
-        Church(name="Abiding Presence Lutheran Church", location="Ewing, NJ", info="Door combination: 91011"),
-        Church(name="Princeton University Chapel", location="Princeton, NJ", info="Door combination: 121314"),
-    ]
-    db.bulk_save_objects(churches)
-    db.commit()
-    db.close()
-
-if __name__ == "__main__":
-    make_db()
-    populate_initial_data()

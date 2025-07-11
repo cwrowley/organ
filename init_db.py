@@ -15,6 +15,7 @@ def populate_sample_data():
             Piece(title="Prelude in C Major, BWV 547", composer="J.S. Bach", duration=300),
             Piece(title="Fugue in C major, BWV 547", composer="J.S. Bach", duration=400),
             Piece(title="Psalm XIX", composer="Benedetto Marcello", duration=250),
+            Piece(title="Ich ruf zu dir, Herr Jesu Christ", composer="J.S. Bach", duration=250, notes="Orgelbuchlein, p40"),
         ]
         churches = [
             Church(name="All Saints Church", location="Princeton, NJ", info="Door combination: 1234"),
@@ -24,7 +25,7 @@ def populate_sample_data():
             Church(name="Princeton University Chapel", location="Princeton, NJ", info="Door combination: 121314"),
         ]
         db.bulk_save_objects(pieces + churches)
-        gig = Gig(date=date(2024, 12, 24), church_id=1, fee=100.0)
+        gig = Gig(date=date(2024, 12, 24), church_id=1, fee=100.0, occasion="Christmas Eve")
         db.add(gig)
         db.commit()  # Ensure gig has an ID before creating GigPiece
         db.refresh(gig)  # Refresh to get the ID
