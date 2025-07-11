@@ -1,7 +1,10 @@
-// Common utilities and shared functions
+// Legacy Common utilities - Consider migrating to new modular structure
+// Note: These functions are kept for backward compatibility with existing code
+// New development should use the modular ApiService class instead
 
-// API utility functions
+// Deprecated: Use ApiService.get() instead
 async function fetchData(endpoint) {
+    console.warn('fetchData is deprecated. Use ApiService.get() instead.');
     try {
         const response = await fetch(endpoint);
         if (!response.ok) {
@@ -14,7 +17,9 @@ async function fetchData(endpoint) {
     }
 }
 
+// Deprecated: Use ApiService.post() instead
 async function postData(endpoint, data) {
+    console.warn('postData is deprecated. Use ApiService.post() instead.');
     try {
         const response = await fetch(endpoint, {
             method: 'POST',
@@ -33,7 +38,9 @@ async function postData(endpoint, data) {
     }
 }
 
+// Deprecated: Use ApiService.put() instead
 async function putData(endpoint, data) {
+    console.warn('putData is deprecated. Use ApiService.put() instead.');
     try {
         const response = await fetch(endpoint, {
             method: 'PUT',
