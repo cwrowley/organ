@@ -71,10 +71,19 @@ class ChurchManager {
         const row = event.target.closest('.church-row');
         if (!row) return;
 
-        if (event.target.dataset.action === 'edit') {
+        const action = event.target.dataset.action;
+        
+        if (action === 'edit') {
             this.editChurch(row);
+        } else if (action === 'save') {
+            this.saveChurch(row);
+        } else if (action === 'cancel') {
+            this.cancelEdit(row);
         } else {
-            this.selectChurch(row);
+            // Only select church if clicking on the row itself, not on buttons
+            if (!event.target.closest('button')) {
+                this.selectChurch(row);
+            }
         }
     }
 
@@ -115,6 +124,46 @@ class ChurchManager {
         row.dataset.originalData = JSON.stringify(church);
     }
 
+    async saveChurch(row) {
+        const churchId = parseInt(row.dataset.churchId);
+        const inputs = row.querySelectorAll('input[data-field]');
+        
+        const updatedData = {};
+        inputs.forEach(input => {
+            updatedData[input.dataset.field] = input.value;
+        });
+
+        try {
+            await ApiService.put(`/churches/${churchId}`, updatedData);
+            await this.loadChurches(); // Refresh the table
+            showNotification('Church updated successfully', 'success');
+        } catch (error) {
+            console.error('Error updating church:', error);
+            showNotification('Failed to update church', 'error');
+        }
+    }
+
+    cancelEdit(row) {
+        // Restore original data and exit edit mode
+        const originalData = JSON.parse(row.dataset.originalData);
+        const church = this.churches.find(c => c.id === originalData.id);
+        
+        if (church) {
+            // Re-render the row in display mode
+            row.innerHTML = `
+                <td>${church.name}</td>
+                <td>${church.location || ''}</td>
+                <td>${church.info || ''}</td>
+                <td>
+                    <button class="btn btn--secondary btn--sm" data-action="edit">Edit</button>
+                </td>
+            `;
+        }
+        
+        // Clean up the stored data
+        delete row.dataset.originalData;
+    }
+
     async handleAddChurch(event) {
         event.preventDefault();
         const formData = new FormData(event.target);
@@ -125,6 +174,7 @@ class ChurchManager {
             info: formData.get('info')
         };
 
+        console.log('Adding church:', churchData);
         try {
             await ApiService.post('/churches/', churchData);
             await this.loadChurches();
