@@ -6,6 +6,7 @@ class ChurchManager {
     constructor() {
         this.churches = [];
         this.selectedChurchId = null;
+        this.churchSelectedCallback = null;
     }
 
     async init() {
@@ -87,7 +88,7 @@ class ChurchManager {
         this.selectedChurchId = parseInt(row.dataset.churchId);
         
         // Trigger gig filtering
-        this.onChurchSelected?.(this.selectedChurchId);
+        this.churchSelectedCallback?.(this.selectedChurchId);
     }
 
     editChurch(row) {
@@ -146,7 +147,7 @@ class ChurchManager {
 
     // Method to be called by other modules when church selection changes
     onChurchSelected(callback) {
-        this.onChurchSelected = callback;
+        this.churchSelectedCallback = callback;
     }
 
     getSelectedChurchId() {
