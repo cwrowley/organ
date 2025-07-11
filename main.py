@@ -1,5 +1,6 @@
 from fastapi import FastAPI
 from fastapi.staticfiles import StaticFiles
+from fastapi.responses import RedirectResponse
 import uvicorn
 
 from routers import churches, pieces, gigs
@@ -11,6 +12,10 @@ app = FastAPI(
 )
 
 app.mount("/static", StaticFiles(directory="static"), name="static")
+
+@app.get("/")
+async def root():
+    return RedirectResponse("/static/index.html")
 
 app.include_router(churches.router, prefix="/churches", tags=["Churches"])
 app.include_router(pieces.router, prefix="/pieces", tags=["Pieces"])
