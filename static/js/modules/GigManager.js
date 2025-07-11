@@ -166,6 +166,11 @@ class GigManager {
         if (addGigForm) {
             addGigForm.addEventListener('submit', this.handleAddGig.bind(this));
         }
+
+        const refreshGigsButton = document.getElementById('refresh-gigs');
+        if (refreshGigsButton) {
+            refreshGigsButton.addEventListener('click', () => this.loadGigs());
+        }
     }
 
     setupChurchSelection() {

@@ -32,7 +32,7 @@ class FormManager {
         
         // Add gig form
         this.setupAddGigForm();
-        
+
         // Form visibility toggles
         this.setupFormToggles();
     }
@@ -116,6 +116,11 @@ class FormManager {
         const hideGigFormBtn = document.getElementById('cancel-gig-btn');
         if (hideGigFormBtn) {
             hideGigFormBtn.addEventListener('click', () => this.hideGigForm());
+        }
+
+        const addPieceRowBtn = document.getElementById('add-piece-row');
+        if (addPieceRowBtn) {
+            addPieceRowBtn.addEventListener('click', () => this.addPieceRow());
         }
     }
 

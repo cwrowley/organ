@@ -34,9 +34,9 @@
     <section>
         <h2>Gigs</h2>
         <div class="gigs-controls">
-            <button onclick="window.organGigApp.gigManager.loadGigs()" class="btn btn--primary">Refresh Gigs</button>
-            <button id="add-gig-btn" onclick="window.organGigApp.formManager.showGigForm()" class="btn btn--success">Add Gig</button>
-            <button id="show-all-gigs-btn" onclick="window.organGigApp.gigManager.showAllGigs()" class="btn btn--secondary" style="display: none;">Show All Gigs</button>
+            <button id="refresh-gigs" class="btn btn--primary">Refresh Gigs</button>
+            <button id="add-gig-btn" class="btn btn--success">Add Gig</button>
+            <button id="show-all-gigs-btn" class="btn btn--secondary" style="display: none;">Show All Gigs</button>
         </div>
 
         <!-- Add Gig Form (initially hidden) -->
@@ -71,12 +71,12 @@
                         <div id="gig-pieces-container">
                             <!-- Pieces will be added dynamically -->
                         </div>
-                        <button type="button" onclick="window.organGigApp.gigManager.addPieceToGig()" class="btn btn--primary">Add Another Piece</button>
+                        <button id="add-piece-row" type="button" class="btn btn--primary">Add Another Piece</button>
                     </div>
                     
                     <div class="card__actions">
                         <button type="submit" class="btn btn--success">Add Gig</button>
-                        <button type="button" onclick="window.organGigApp.formManager.hideGigForm()" class="btn btn--secondary">Cancel</button>
+                        <button id="cancel-gig-btn" type="button" class="btn btn--secondary">Cancel</button>
                     </div>
                 </form>
             </div>
@@ -85,7 +85,7 @@
         <div id="gigs-container"></div>
         
         <div id="gigs-pagination" class="pagination" style="display: none;">
-            <button id="load-more-gigs" onclick="window.organGigApp.gigManager.loadMoreGigs()" class="btn btn--primary">Load More Gigs</button>
+            <button id="load-more-gigs" class="btn btn--primary">Load More Gigs</button>
             <span id="gigs-count-info" class="pagination__info"></span>
         </div>
     </section>
