@@ -22,4 +22,4 @@ app.include_router(pieces.router, prefix="/pieces", tags=["Pieces"])
 app.include_router(gigs.router, prefix="/gigs", tags=["Gigs"])
 
 if __name__ == "__main__":
-    uvicorn.run("main:app", host="127.0.0.1", port=8000, reload=True)
+    uvicorn.run("main:app", host="127.0.0.1", port=1685, reload=True)
