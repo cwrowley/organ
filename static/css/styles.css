@@ -1018,3 +1018,34 @@ table tr:hover {
         padding: var(--spacing-md);
     }
 }
+
+/* ========================================
+   CHURCH DETAIL VIEW
+   ======================================== */
+.church-detail__location,
+.church-detail__info {
+    margin: var(--spacing-sm) 0;
+    color: var(--color-text-light);
+}
+
+.church-detail__location {
+    font-size: var(--font-size-base);
+}
+
+.church-detail__info {
+    font-size: var(--font-size-sm);
+    color: var(--color-text-muted);
+}
+
+#church-detail-container {
+    margin-top: var(--spacing-lg);
+}
+
+#church-detail-container .card {
+    max-width: 600px;
+}
+
+#church-detail-container .card__title {
+    font-size: var(--font-size-xl);
+    color: var(--color-primary);
+}

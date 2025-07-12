@@ -8,10 +8,10 @@
 </head>
 <body>
     <header>
-    <h1>Organ Gigs</h1>
-    <nav class="nav">
-        <a href="pieces.html" class="btn btn--success btn--lg">Manage Pieces</a>
-    </nav>
+        <h1>Organ Gigs</h1>
+        <nav class="nav">
+            <a href="pieces.html" class="btn btn--success btn--lg">Manage Pieces</a>
+        </nav>
     </header>
 
     <!-- Churches Section -->
@@ -22,13 +22,15 @@
                 <tr>
                     <th>Name</th>
                     <th>Location</th>
-                    <th>Info</th>
-                    <th>Actions</th>
                 </tr>
             </thead>
             <tbody id="churches-table-body"></tbody>
         </table>
 
+        <!-- Church Detail View -->
+        <div id="church-container" style="display: none;">
+            <div id="church-content"></div>
+        </div>
     </section>
 
     <!-- Gigs Section -->

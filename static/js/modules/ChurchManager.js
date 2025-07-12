@@ -46,10 +46,6 @@ class ChurchManager {
         row.innerHTML = `
             <td>${church.name}</td>
             <td>${church.location || ''}</td>
-            <td>${church.info || ''}</td>
-            <td>
-                <button class="btn btn--secondary btn--sm" data-action="edit">Edit</button>
-            </td>
         `;
 
         return row;
@@ -70,21 +66,7 @@ class ChurchManager {
     handleTableClick(event) {
         const row = event.target.closest('.church-row');
         if (!row) return;
-
-        const action = event.target.dataset.action;
-        
-        if (action === 'edit') {
-            this.editChurch(row);
-        } else if (action === 'save') {
-            this.saveChurch(row);
-        } else if (action === 'cancel') {
-            this.cancelEdit(row);
-        } else {
-            // Only select church if clicking on the row itself, not on buttons
-            if (!event.target.closest('button')) {
-                this.selectChurch(row);
-            }
-        }
+        this.selectChurch(row);
     }
 
     selectChurch(row) {
@@ -96,24 +78,49 @@ class ChurchManager {
         row.classList.add('selected');
         this.selectedChurchId = parseInt(row.dataset.churchId);
         
+        // Show church detail view
+        this.showChurch(this.selectedChurchId);
+
         // Trigger gig filtering
         this.churchSelectedCallback?.(this.selectedChurchId);
     }
 
-    editChurch(row) {
-        const churchId = parseInt(row.dataset.churchId);
-        const church = this.churches.find(c => c.id === churchId);
-        
-        if (church) {
-            this.renderEditForm(row, church);
-        }
+    showChurch(churchId) {
+        const church = this.getChurchById(churchId);
+        const container = document.getElementById('church-container');
+        this.renderChurchDetail(church);
+        container.style.display = 'block';
     }
 
-    renderEditForm(row, church) {
-        row.innerHTML = `
-            <td><input type="text" value="${church.name}" data-field="name" class="form-input"></td>
-            <td><input type="text" value="${church.location || ''}" data-field="location" class="form-input"></td>
-            <td><input type="text" value="${church.info || ''}" data-field="info" class="form-input"></td>
+    renderChurchDetail(church) {
+        const content = document.getElementById('church-content');
+        content.innerHTML = `
+            <h2>${church.name}</h2>
+                <p class="church-detail__location">${church.location || ''}</p>
+                <p class="church-detail__info">${church.info || ''}</p>
+                <button class="btn btn--primary" data-action="edit">Edit</button>
+        `;
+        // Add event listener for the edit button
+        const editButton = content.querySelector('[data-action="edit"]');
+        if (editButton) {
+            editButton.addEventListener('click', () => this.editChurch(church));
+        }
+    }
+    editChurch(church) {
+        const content = document.getElementById('church-content');
+        this.renderEditForm(content, church);
+    }
+
+    renderEditForm(element, church) {
+        element.innerHTML = `
+            <div class="card">
+            <div class="card__header">
+                <h3 class="card__title">Edit Church</h3>
+            </div>
+            <div class="card__body">
+            <input type="text" value="${church.name}" data-field="name" class="form-input"></td>
+            <input type="text" value="${church.location || ''}" placeholder="Location" data-field="location" class="form-input"></td>
+            <input type="text" value="${church.info || ''}" placeholder="Info" data-field="info" class="form-input"></td>
             <td>
                 <button class="btn btn--success btn--sm" data-action="save">Save</button>
                 <button class="btn btn--secondary btn--sm" data-action="cancel">Cancel</button>
@@ -121,7 +128,7 @@ class ChurchManager {
         `;
 
         // Store original data for cancel functionality
-        row.dataset.originalData = JSON.stringify(church);
+        element.dataset.originalData = JSON.stringify(church);
     }
 
     async saveChurch(row) {
