@@ -53,7 +53,8 @@ class FormManager {
             const formData = getFormData(form);
             const pieceData = {
                 title: formData.title,
-                composer: formData.composer
+                composer: formData.composer,
+                notes: formData.notes
             };
 
             if (formData.duration) {

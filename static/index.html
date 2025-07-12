@@ -113,9 +113,10 @@
             </div>
             <form id="add-piece-form" class="form">
                 <div class="grid grid--cols-4">
-                    <input type="text" id="piece-title" class="form-input" placeholder="Title" required>
-                    <input type="text" id="piece-composer" list="composer-list" class="form-input" placeholder="Composer" required>
-                    <input type="number" id="piece-duration" class="form-input" placeholder="Duration (seconds)">
+                    <input type="text" name="title" class="form-input" placeholder="Title" required>
+                    <input type="text" id="piece-composer" name="composer" list="composer-list" class="form-input" placeholder="Composer" required>
+                    <input type="number" id="piece-duration" name="duration" class="form-input" placeholder="Duration (seconds)">
+                    <input type="text" id="piece-notes" name="notes" class="form-input" placeholder="Notes">
                     <button type="submit" class="btn btn--success">Add Piece</button>
                     <datalist id="composer-list"></datalist>
                 </div>
