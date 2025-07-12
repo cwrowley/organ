@@ -5,9 +5,21 @@
 ** List all pieces
 - Order by last date played, or alphabetical (composer, title), or duration
 * Improvements
-- Add a field for "Occasion" in Gigs
-- Add a field for "Notes" in Pieces (e.g., Orgelbuchlein page 32)
-- Improve listing of gigs in Pieces page
+- [X] Add a field for "Occasion" in Gigs
+- [X] Add a field for "Notes" in Pieces (e.g., Orgelbuchlein page 32)
+- [ ] Move navigation buttons to top right to save vertical space
+** Main page
+- [ ] Omit "Info" and edit box from church list
+- [ ] Show church "detail" when church selected
+  - Include "info" and edit button (and delete), in addition to list of gigs
+  - Edit form should replace the church detail (not the table row)
+** Pieces page
+- [ ] Omit Edit button from pieces form
+- [ ] Show piece "detail" when piece selected
+  - Include "notes" and list of gigs
+  - Include Edit button (and delete)
+- [ ] Improve listing of gigs in Pieces page
+- [ ] Display duration in min:sec (and input in min:sec?)
 * Testing suggestions
 #+begin_src txt
 organ_gigs/
