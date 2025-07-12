@@ -13,12 +13,14 @@ class PieceCreate(BaseModel):
     title: str
     composer: str
     duration: Optional[int] = None
+    notes: Optional[str] = None
 
 class PieceOut(BaseModel):
     id: int
     title: str
     composer: str
     duration: Optional[int]
+    notes: Optional[str]
 
     model_config = ConfigDict(from_attributes=True)
 
@@ -61,6 +63,7 @@ class GigCreate(BaseModel):
     date: date
     church_id: int
     fee: float
+    occasion: Optional[str]
     pieces: list[GigPieceCreate]
 
 class GigOut(BaseModel):
@@ -68,6 +71,7 @@ class GigOut(BaseModel):
     date: date
     church: ChurchOut
     fee: Optional[float]
+    occasion: Optional[str]
     gig_pieces: list[GigPieceOut]
 
     model_config = ConfigDict(from_attributes=True)

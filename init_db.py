@@ -12,20 +12,29 @@ def populate_sample_data():
     db = SessionLocal()
     try:
         pieces = [
-            Piece(title="Prelude in C Major, BWV 547", composer="J.S. Bach", duration=300),
-            Piece(title="Fugue in C major, BWV 547", composer="J.S. Bach", duration=400),
-            Piece(title="Psalm XIX", composer="Benedetto Marcello", duration=250),
-            Piece(title="Ich ruf zu dir, Herr Jesu Christ", composer="J.S. Bach", duration=250, notes="Orgelbuchlein, p40"),
+            Piece(title="Prelude in C, BWV 547", composer="Bach, J.S.", duration=315),
+            Piece(title="Fugue in C, BWV 547", composer="Bach, J.S.", duration=300),
+            Piece(title="Prelude in a, BWV 543", composer="Bach, J.S.", duration=195),
+            Piece(title="Fugue in a, BWV 543", composer="Bach, J.S.", duration=345),
+            Piece(title="Prelude in A, BWV 536", composer="Bach, J.S."),
+            Piece(title="Ich ruf' zu dir, Herr Jesu Christ", composer="Bach, J.S.", duration=250, notes="Orgelbüchlein, #40, p124"),
+            Piece(title="Mein Jesu, der du mich", composer="Brahms, Johannes", duration=280, notes="#1 in Eleven Chorale Preludes, Op 122"),
+            Piece(title="O wie seilig seid ihr doch, ihr Frommen", composer="Brahms, Johannes", duration=75, notes="#6 in Eleven Chorale Preludes, Op 122"),
+            Piece(title="Es ist ein Ros' entsprungen", composer="Brahms, Johannes", duration=130, notes="#8 in Eleven Chorale Preludes, Op 122"),
+            Piece(title="Psalm XIX", composer="Marcello, Benedetto", duration=250),
         ]
         churches = [
-            Church(name="All Saints Church", location="Princeton, NJ", info="Door combination: 1234"),
-            Church(name="Trinity Episcopal Church", location="Princeton, NJ", info="Door combination: 5678"),
+            Church(name="Princeton University Chapel", location="Princeton, NJ", info="Organ combination 03111"),
+            Church(name="Trinity Episcopal Church", location="Princeton, NJ"),
+            Church(name="Episcopal Church at Princeton", location="Princeton, NJ"),
+            Church(name="Abiding Presence Lutheran Church", location="Ewing, NJ", info="Door combination: 6209#"),
+            Church(name="All Saints Church", location="Princeton, NJ", info="Door combination: 0119"),
             Church(name="Dutch Neck Presbyterian Church", location="Dutch Neck, NJ"),
-            Church(name="Abiding Presence Lutheran Church", location="Ewing, NJ", info="Door combination: 91011"),
-            Church(name="Princeton University Chapel", location="Princeton, NJ", info="Door combination: 121314"),
+            Church(name="Doylestown Presbyterian Church", location="Doylestown, PA"),
+            Church(name="Bound Brook Presbyterian Church", location="Bound Brook, NJ"),
         ]
         db.bulk_save_objects(pieces + churches)
-        gig = Gig(date=date(2024, 12, 24), church_id=1, fee=100.0, occasion="Christmas Eve")
+        gig = Gig(date=date(2024, 12, 24), church_id=1, fee=1.0, occasion="Christmas Eve")
         db.add(gig)
         db.commit()  # Ensure gig has an ID before creating GigPiece
         db.refresh(gig)  # Refresh to get the ID
