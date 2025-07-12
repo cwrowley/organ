@@ -12,7 +12,7 @@ class ChurchManager {
     async init() {
         await this.loadChurches();
         this.setupEventListeners();
-        this.setupKeyboardNavigation();
+        // this.setupKeyboardNavigation();
     }
 
     async loadChurches() {

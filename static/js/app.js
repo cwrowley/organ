@@ -16,7 +16,7 @@ class OrganGigApp {
         try {
             await this.initializeManagers();
             this.setupGlobalEventListeners();
-            this.setupKeyboardShortcuts();
+            // this.setupKeyboardShortcuts();
             
             console.log('Organ Gig App initialized successfully');
         } catch (error) {
