@@ -68,6 +68,12 @@ body {
     line-height: 1.5;
 }
 
+header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
 /* ========================================
    TYPOGRAPHY
    ======================================== */
@@ -422,9 +428,9 @@ table tr:hover {
    NAVIGATION
    ======================================== */
 .nav {
-    margin: var(--spacing-md) 0 var(--spacing-xl) 0;
+    margin: var(--spacing-md) 0 var(--spacing-md) 0;
     padding: var(--spacing-md) 0;
-    border-bottom: 2px solid var(--color-border-light);
+    border-bottom: none;
 }
 
 .nav__link {
