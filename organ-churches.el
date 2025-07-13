@@ -35,7 +35,7 @@ Fetch churches if the cache is empty."
         (cdr (assoc selected-church organ--churches-cache)))
     (progn
       (message "Cache is empty, fetching churches...")
-      (organ--refresh-churches #'select-church))))
+      (organ--refresh-churches #'organ--select-church))))
 
 (defun organ--select-church-with-default (default-church)
   "Select a church, with DEFAULT-CHURCH as the default value."
