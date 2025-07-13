@@ -116,17 +116,18 @@ Each cell in the cache has the form (\"composer - title\" . piece-id)."
            (secs (% seconds 60)))
       (format "%d:%02d" minutes secs))))
 
+(defun organ--extract-list-entry (piece)
+  "Convert PIECE to an entry for a tabulated list"
+  (let* ((id (alist-get 'id piece))
+         (composer (alist-get 'composer piece))
+         (title (alist-get 'title piece))
+         (duration (organ--format-duration (alist-get 'duration piece)))
+         (notes (or (alist-get 'notes piece) "")))
+    (list id (vector composer title duration notes))))
+
 (defun organ--pieces-list-entries (pieces)
-  "Convert `organ--pieces-cache` to tabulated list entries."
-  (mapcar
-   (lambda (piece)
-     (let* ((id (alist-get 'id piece))
-            (composer (alist-get 'composer piece))
-            (title (alist-get 'title piece))
-            (duration (organ--format-duration (alist-get 'duration piece)))
-            (notes (or (alist-get 'notes piece) "")))
-       (list id (vector composer title duration notes))))
-   pieces))
+  "Convert PIECES to tabulated list entries."
+  (mapcar #'organ--extract-list-entry pieces))
 
 (defun organ-pieces ()
   "Fetch and display the list of organ pieces in a separate buffer"
