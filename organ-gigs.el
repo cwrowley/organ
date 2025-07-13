@@ -31,13 +31,13 @@
 
 (defun organ--select-role ()
   "Prompt the user to select a role for a piece."
-  (let ((roles '("PRELUDE" "OFFERTORY" "POSTLUDE" "OTHER")))
+  (let ((roles '("Prelude" "Offertory" "Postlude" "Other")))
     (completing-read "Select role: " roles nil t)))
 
 (defun organ--select-pieces-and-roles ()
   "Prompt the user to select pieces and their associated roles."
   (let (selected-pieces)
-    (while (yes-or-no-p "Do you want to add another piece?")
+    (while (y-or-n-p "Do you want to add another piece?")
       (let* ((piece-id (organ--select-piece))
              (role (organ--select-role)))
         (push `(("piece_id" . ,piece-id) ("role" . ,role)) selected-pieces)))
@@ -62,7 +62,7 @@
                  (message "Gig added successfully: %s" (alist-get 'id data)))))))
 
 (defun organ-gigs ()
-  "Fetch and display the list of gigs in a tabulated list mode buffer."
+  "Fetch and display the list of gigs in a separate buffer."
   (interactive)
   (organ--refresh-gigs
    (lambda ()
@@ -71,7 +71,7 @@
          (organ-gigs-mode)
          (setq tabulated-list-entries (organ--gigs-list-entries))
          (tabulated-list-print t)
-         (display-buffer buffer))))))
+         (switch-to-buffer buffer))))))
 
 (defun organ--gigs-list-entries ()
   "Convert `organ--gigs-cache` to tabulated list entries."
@@ -79,9 +79,9 @@
    (lambda (gig)
      (let ((id (alist-get 'id gig))
            (date (alist-get 'date gig))
-           (church (alist-get 'church gig))
-           (occasion (alist-get 'occasion gig)))
-       (list id (vector date (alist-get 'name church) (or occasion "None")))))
+           (church (alist-get 'name (alist-get 'church gig)))
+           (occasion (or (alist-get 'occasion gig) "")))
+       (list id (vector date church occasion))))
    organ--gigs-cache))
 
 (define-derived-mode organ-gigs-mode
@@ -95,28 +95,44 @@
   (add-hook 'tabulated-list-revert-hook #'organ-gigs nil t)
   (tabulated-list-init-header))
 
+(define-derived-mode organ-gig-pieces-mode
+  tabulated-list-mode "Organ gig pieces"
+  "Major mode for displaying pieces for organ gigs"
+  (setq tabulated-list-format [("Role" 10 t)
+                               ("Composer" 20 t)
+                               ("Title" 30 t)
+                               ("Duration" 8 t)
+                               ("Notes" 15 t)]
+        tabulated-list-padding 2
+        tabulated-list-sort-key (cons "Role" nil))
+  (tabulated-list-init-header))
+
+(defun organ--gig-pieces-entries (gig-pieces)
+  "Convert PIECES to tabulated list entries"
+  (mapcar
+   (lambda (gig-piece)
+     (let* ((id (alist-get 'id gig-piece))
+           (role (alist-get 'role gig-piece))
+           (piece (alist-get 'piece gig-piece))
+           (piece-data (organ--piece-data-list piece)))
+       (list id (apply 'vector (cons role piece-data)))))
+   gig-pieces))
+
 (defun organ--display-gig-pieces ()
   "Display pieces for the selected gig in a separate buffer."
   (interactive)
   (let* ((id (tabulated-list-get-id))
          (gig (seq-find (lambda (g) (= (alist-get 'id g) id)) organ--gigs-cache))
-         (pieces (alist-get 'gig_pieces gig)))
-    (let ((buffer (get-buffer-create "*Gig Pieces*")))
-      (with-current-buffer buffer
-        (read-only-mode -1)
-        (erase-buffer)
-        (insert (format "Pieces for Gig ID: %d\n\n" id))
-        (dolist (gig-piece (append pieces nil))
-          (let ((piece (alist-get 'piece gig-piece))
-                (role (alist-get 'role gig-piece)))
-            (insert (format "Title: %s\nComposer: %s\nRole: %s\nNotes: %s\n\n"
-                            (alist-get 'title piece)
-                            (alist-get 'composer piece)
-                            role
-                            (or (alist-get 'notes piece) "None")))))
-        (read-only-mode 1)
-        (goto-char (point-min))
-        (display-buffer buffer)))))
+         (church (alist-get 'name (alist-get 'church gig)))
+         (date (alist-get 'date gig))
+         (gig-pieces (alist-get 'gig_pieces gig))
+         (buf-title (format "*Pieces for %s on %s*" church date))
+         (buffer (get-buffer-create buf-title)))
+    (with-current-buffer buffer
+      (organ-gig-pieces-mode)
+      (setq tabulated-list-entries (organ--gig-pieces-entries gig-pieces))
+      (tabulated-list-print t)
+      (display-buffer buffer))))
 
 (defun organ--delete-gig ()
   "Delete the selected gig, sending request to the API"
@@ -129,7 +145,6 @@
                (lambda (&key data &allow-other-keys)
                  (message "Gig %s deleted successfully" id)
                  (organ-gigs)))))))
-
 
 (defun organ--edit-gig ()
   "Edit the selected gig, sending updated data to the API."
@@ -158,17 +173,20 @@
     (dolist (gig-piece (append current-pieces nil))
       (let* ((piece (alist-get 'piece gig-piece))
              (role (alist-get 'role gig-piece))
-             (completion-table (mapcar #'car organ-pieces))
+             (completion-table (mapcar #'car organ--pieces-cache))
              (default-title (alist-get 'title piece))
              (selected-piece (completing-read "Edit piece: " completion-table nil t nil nil default-title))
-             (piece-id (cdr (assoc selected-piece organ-pieces)))
+             (piece-id (cdr (assoc selected-piece organ--pieces-cache)))
              (selected-role (completing-read "Edit role: " '("Prelude" "Offertory" "Postlude" "Other") nil t nil nil role)))
         (push `(("piece_id" . ,piece-id) ("role" . ,selected-role)) selected-pieces)))
     selected-pieces))
 
-(define-key tabulated-list-mode-map (kbd "RET") 'organ--display-gig-pieces)
-(define-key tabulated-list-mode-map (kbd "d") 'organ--delete-gig)
-(define-key tabulated-list-mode-map (kbd "e") 'organ--edit-gig)
-(define-key tabulated-list-mode-map (kbd "g") 'organ-gigs)
+;;;; Key bindings
+
+(define-key organ-gigs-mode-map (kbd "RET") 'organ--display-gig-pieces)
+(define-key organ-gigs-mode-map (kbd "a") 'organ-add-gig)
+(define-key organ-gigs-mode-map (kbd "d") 'organ--delete-gig)
+(define-key organ-gigs-mode-map (kbd "e") 'organ--edit-gig)
+(define-key organ-gigs-mode-map (kbd "g") 'organ-gigs)
 
 (provide 'organ-gigs)
