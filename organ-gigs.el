@@ -28,38 +28,57 @@
       (organ--refresh-gigs callback)
       (ignore))))
 
-
 (defun organ--select-role ()
   "Prompt the user to select a role for a piece."
   (let ((roles '("Prelude" "Offertory" "Postlude" "Other")))
     (completing-read "Select role: " roles nil t)))
 
+(defun organ--select-piece-and-role ()
+  "Prompt the user to select a single piece and associated role"
+  (let ((piece-id (organ--select-piece))
+        (role (organ--select-role)))
+    ;;(message "in select-piece-and-role piece-id is %s" piece-id)
+    `((piece_id . ,piece-id) (role . ,role))))
+
 (defun organ--select-pieces-and-roles ()
   "Prompt the user to select pieces and their associated roles."
+  (interactive)
   (let (selected-pieces)
     (while (y-or-n-p "Do you want to add another piece?")
-      (let* ((piece-id (organ--select-piece))
-             (role (organ--select-role)))
-        (push `(("piece_id" . ,piece-id) ("role" . ,role)) selected-pieces)))
-    selected-pieces))
+      (push (organ--select-piece-and-role) selected-pieces))
+    (or selected-pieces '())))
+
+(defun organ--simplify-pieces (gig-pieces)
+  "Transform full gig-piece objects into simplified (piece_id . ID) format."
+  (mapcar (lambda (entry)
+            (let* ((piece (alist-get 'piece entry))
+                   (role (alist-get 'role entry))
+                   (piece-id (alist-get 'id piece)))
+              `((piece_id . ,piece-id)
+                (role . ,role))))
+          gig-pieces))
 
 (defun organ-add-gig ()
   "Interactively add a new gig."
   (interactive)
-  (let ((date (org-read-date nil t nil "Select gig date: "))
-        (church-id (organ--select-church))
-        (fee (read-string "Fee: "))
-        (occasion (read-string "Occasion: "))
-        (pieces-and-roles (organ--select-pieces-and-roles)))
-    (organ--post-request "/gigs/"
-     :data (json-encode `(("date" . ,(format-time-string "%Y-%m-%d" date))
-                          ("church_id" . ,church-id)
-                          ("fee" . ,fee)
-                          ("occasion" . ,occasion)
-                          ("pieces" . ,pieces-and-roles)))
+  (let* ((date (org-read-date nil t nil "Select gig date: "))
+         (church-id (organ--select-church))
+         (fee (read-string "Fee: "))
+         (occasion (read-string "Occasion: "))
+         (pieces-and-roles (organ--select-pieces-and-roles))
+         (payload (json-encode `(("date" . ,(format-time-string "%Y-%m-%d" date))
+                                 ("church_id" . ,church-id)
+                                 ("fee" . ,fee)
+                                 ("occasion" . ,occasion)
+                                 ("pieces" . ,(vconcat pieces-and-roles))))))
+    ;;(message "Sending payload: %s" payload)
+    (organ--post-request
+     "/gigs/"
+     :data payload
      :success (cl-function
                (lambda (&key data &allow-other-keys)
-                 (message "Gig added successfully: %s" (alist-get 'id data)))))))
+                 (message "Gig added successfully: %s" (alist-get 'id data))
+                 (organ-gigs))))))
 
 (defun organ-gigs ()
   "Fetch and display the list of gigs in a separate buffer."
@@ -107,6 +126,7 @@
         tabulated-list-sort-key (cons "Role" nil))
   (tabulated-list-init-header))
 
+
 (defun organ--gig-pieces-entries (gig-pieces)
   "Convert PIECES to tabulated list entries"
   (mapcar
@@ -118,11 +138,34 @@
        (list id (apply 'vector (cons role piece-data)))))
    gig-pieces))
 
-(defun organ--display-gig-pieces ()
+(defun organ--display-gig-pieces (&optional id)
   "Display pieces for the selected gig in a separate buffer."
   (interactive)
-  (let* ((id (tabulated-list-get-id))
-         (gig (seq-find (lambda (g) (= (alist-get 'id g) id)) organ--gigs-cache))
+  (let ((gig-id (or id (tabulated-list-get-id))))
+    (organ--get-request
+     (format "/gigs/%d" gig-id)
+     :success
+     (cl-function
+      (lambda (&key data &allow-other-keys)
+        (let* ((gig (append data nil))
+               (church (alist-get 'name (alist-get 'church gig)))
+               (date (alist-get 'date gig))
+               (gig-pieces (alist-get 'gig_pieces gig))
+               (buf-title (format "*Pieces for %s on %s*" church date))
+               (buffer (get-buffer-create buf-title)))
+          ;; (message "returned gig for id %d is %s" gig-id gig)
+          (with-current-buffer buffer
+            (organ-gig-pieces-mode)
+            (setq tabulated-list-entries (organ--gig-pieces-entries gig-pieces))
+            (setq-local this-gig gig)
+            (tabulated-list-print t)
+            (display-buffer buffer))))))))
+
+(defun organ--display-gig-pieces-bak (&optional id)
+  "Display pieces for the selected gig in a separate buffer."
+  (interactive)
+  (let* ((gig-id (or id (tabulated-list-get-id)))
+         (gig (seq-find (lambda (g) (= (alist-get 'id g) gig-id)) organ--gigs-cache))
          (church (alist-get 'name (alist-get 'church gig)))
          (date (alist-get 'date gig))
          (gig-pieces (alist-get 'gig_pieces gig))
@@ -131,14 +174,44 @@
     (with-current-buffer buffer
       (organ-gig-pieces-mode)
       (setq tabulated-list-entries (organ--gig-pieces-entries gig-pieces))
+      (setq-local this-gig gig)
       (tabulated-list-print t)
       (display-buffer buffer))))
+
+(defun organ--add-piece-to-gig ()
+  "Add piece to the gig currently displayed in the gig-pieces buffer"
+  (interactive)
+  (let* ((id (alist-get 'id this-gig))
+         (date (alist-get 'date this-gig))
+         (church-id (alist-get 'id (alist-get 'church this-gig)))
+         (old-pieces (organ--simplify-pieces (alist-get 'gig_pieces this-gig)))
+         (pieces-and-roles (cons (organ--select-piece-and-role) old-pieces))
+         (fee (alist-get 'fee this-gig))
+         (occasion (alist-get 'occasion this-gig))
+         (payload (json-encode `(("date" . ,date)
+                                 ("church_id" . ,church-id)
+                                 ("pieces" . ,(vconcat pieces-and-roles))
+                                 ("fee" . ,fee)
+                                 ("occasion" . ,occasion)))))
+    ;; (message "old-pieces: %S (type: %s)"
+    ;;          old-pieces
+    ;;          (type-of old-pieces))
+    ;; (message "Sending payload: %s" payload)
+    (organ--put-request
+     (format "/gigs/%d" id)
+     :data payload
+     :success (cl-function
+               (lambda (&key data &allow-other-keys)
+                 (message "Piece added to gig")
+                 (organ--display-gig-pieces id))))))
+
+(define-key organ-gig-pieces-mode-map (kbd "a") 'organ--add-piece-to-gig)
 
 (defun organ--delete-gig ()
   "Delete the selected gig, sending request to the API"
   (interactive)
   (let* ((id (tabulated-list-get-id)))
-    (when (y-or-n-p (format "Are you sure you want to delete gig %d? " id))
+    (when (yes-or-no-p (format "Are you sure you want to delete gig %d? " id))
     (organ--delete-request
      (format "/gigs/%d" id)
      :success (cl-function
@@ -164,7 +237,7 @@
                           ("occasion" . ,occasion)))
      :success (cl-function
                (lambda (&key data &allow-other-keys)
-                 (message "Gig edited successfully: %s" (alist-get 'id data))
+                 (message "Gig edited successfully")
                  (organ-gigs))))))
 
 (defun organ--edit-pieces-and-roles (current-pieces)
@@ -189,4 +262,8 @@
 (define-key organ-gigs-mode-map (kbd "e") 'organ--edit-gig)
 (define-key organ-gigs-mode-map (kbd "g") 'organ-gigs)
 
+;; TODO
+;; - delete a piece from a gig
+;; - edit a gig, populating pieces correctly
+;; - probably don't need the gigs cache
 (provide 'organ-gigs)
