@@ -84,20 +84,16 @@
        (list id (vector date (alist-get 'name church) (or occasion "None")))))
    organ--gigs-cache))
 
-(defun organ-gigs-mode ()
-  "Major mode for displaying gigs."
-  (kill-all-local-variables)
-  (use-local-map tabulated-list-mode-map)
-  (setq major-mode 'organ-gigs-mode
-        mode-name "Gigs"
-        tabulated-list-format [("Date" 15 t)
+(define-derived-mode organ-gigs-mode
+  tabulated-list-mode "Organ gigs"
+  "Major mode for displaying organ gigs"
+  (setq tabulated-list-format [("Date" 15 t)
                                ("Church" 30 t)
                                ("Occasion" 20 t)]
         tabulated-list-padding 2
         tabulated-list-sort-key (cons "Date" nil))
-  (tabulated-list-init-header)
   (add-hook 'tabulated-list-revert-hook #'organ-gigs nil t)
-  (setq buffer-read-only t))
+  (tabulated-list-init-header))
 
 (defun organ--display-gig-pieces ()
   "Display pieces for the selected gig in a separate buffer."
@@ -133,7 +129,7 @@
                (lambda (&key data &allow-other-keys)
                  (message "Gig %s deleted successfully" id)
                  (organ-gigs)))))))
-     
+
 
 (defun organ--edit-gig ()
   "Edit the selected gig, sending updated data to the API."
