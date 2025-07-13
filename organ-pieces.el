@@ -19,6 +19,11 @@
   "Return the composer for the piece provided"
   (alist-get 'composer piece))
 
+(defun organ--populate-caches (pieces)
+  "Populate the caches for pieces and composers"
+  (setq organ--pieces-cache (mapcar #'organ--format-piece pieces))
+  (setq organ--composers-cache (delete-dups (mapcar #'organ--extract-composer pieces))))
+
 (defun organ--refresh-pieces (&optional callback)
   "Fetch the list of pieces from the API, store it in `organ--pieces-cache`, and execute CALLBACK if provided
 Each cell in the cache has the form (\"composer - title\" . piece-id)."
@@ -26,10 +31,7 @@ Each cell in the cache has the form (\"composer - title\" . piece-id)."
    :success
    (cl-function
     (lambda (&key data &allow-other-keys)
-      (setq organ--pieces-cache
-            (mapcar #'organ--format-piece data))
-      (setq organ--composers-cache
-            (delete-dups (mapcar #'organ--extract-composer data)))
+      (organ--populate-caches (append data nil))
       (message "Fetched and cached pieces")
       (when callback
         (funcall callback))))))
@@ -146,6 +148,7 @@ Each cell in the cache has the form (\"composer - title\" . piece-id)."
         (with-current-buffer buffer
           (organ-pieces-mode)
           (setq tabulated-list-entries (organ--pieces-list-entries pieces))
+          (organ--populate-caches pieces)
           (tabulated-list-print t)
           (switch-to-buffer buffer)))))))
 
