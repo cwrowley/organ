@@ -2,15 +2,20 @@
 (require 'organ-pieces)
 (require 'organ-churches)
 (require 'organ-gigs)
+(require 'transient)
 
-(defvar organ-map
-  (let ((map (make-sparse-keymap)))
-    (define-key map (kbd "g") 'organ-gigs)
-    (define-key map (kbd "p") 'organ-pieces)
-    (define-key map (kbd "a") 'organ-add-gig)
-    map)
-  "Keymap for organ commands")
+(transient-define-prefix organ-transient ()
+ "Organ commands"
+ ["Commands"
+  ["Gigs"
+   ("g" "View Gigs" organ-gigs)
+   ("G" "Add Gig" organ-add-gig)]
+  ["Pieces"
+   ("p" "View Pieces" organ-pieces)
+   ("P" "Add Piece" organ-add-piece)]
+  ["Churches"
+   ("C" "Add Church" organ-add-church)]])
 
-(global-set-key (kbd "C-c o") organ-map)
+(global-set-key (kbd "C-c o") 'organ-transient)
 
 (provide 'organ)
