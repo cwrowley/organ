@@ -43,7 +43,7 @@ def read_gig(gig_id: int, db: Session = Depends(get_db)):
 
 @router.post("/", response_model=GigOut)
 def add_gig(gig: GigCreate, db: Session = Depends(get_db)):
-    new_gig = Gig(date=gig.date, church_id=gig.church_id, fee=gig.fee)
+    new_gig = Gig(date=gig.date, church_id=gig.church_id, fee=gig.fee, occasion=gig.occasion)
     db.add(new_gig)
     db.flush()
     for p in gig.pieces:
@@ -61,6 +61,7 @@ def update_gig(gig_id: int, gig_update: GigCreate, db: Session = Depends(get_db)
     gig.date = gig_update.date
     gig.church_id = gig_update.church_id
     gig.fee = gig_update.fee
+    gig.occasion = gig_update.occasion
     db.query(GigPiece).filter(GigPiece.gig_id == gig.id).delete()
     for p in gig_update.pieces:
         gig_piece = GigPiece(gig_id=gig.id, piece_id=p.piece_id, role=p.role)
@@ -68,3 +69,11 @@ def update_gig(gig_id: int, gig_update: GigCreate, db: Session = Depends(get_db)
     db.commit()
     return _get_gig_with_data(db, gig.id)
 
+@router.delete("/{gig_id}")
+def delete_gig(gig_id: int, db: Session = Depends(get_db)):
+    gig = db.get(Gig, gig_id)
+    if not gig:
+        raise HTTPException(status_code=404, detail="Gig not found")
+    db.delete(gig)
+    db.commit()
+    return {"message": "Gig deleted successfully"}

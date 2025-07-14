@@ -47,13 +47,13 @@ class Gig(Base):
 
     # relationships
     church: Mapped[Church] = relationship(back_populates='gigs')
-    gig_pieces: Mapped[list[GigPiece]] = relationship(back_populates='gig')
+    gig_pieces: Mapped[list[GigPiece]] = relationship(back_populates='gig', cascade="all, delete-orphan")
 
 class Role(enum.Enum):
-    PRELUDE = "PRELUDE"
-    OFFERTORY = "OFFERTORY"
-    POSTLUDE = "POSTLUDE"
-    OTHER = "OTHER"
+    Prelude = "Prelude"
+    Offertory = "Offertory"
+    Postlude = "Postlude"
+    Other = "Other"
 
 class GigPiece(Base):
     __tablename__ = 'gig_pieces'

@@ -98,7 +98,8 @@ class ChurchManager {
             <h2>${church.name}</h2>
                 <p class="church-detail__location">${church.location || ''}</p>
                 <p class="church-detail__info">${church.info || ''}</p>
-                <button class="btn btn--primary" data-action="edit">Edit</button>
+                <!-- disable edit button for now -->
+                <!-- <button class="btn btn--primary" data-action="edit">Edit</button> -->
         `;
         // Add event listener for the edit button
         const editButton = content.querySelector('[data-action="edit"]');

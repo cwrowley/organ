@@ -265,10 +265,10 @@ class GigManager {
 
     roleEnumToDisplayString(roleEnum) {
         const roleMap = {
-            'PRELUDE': 'Prelude',
-            'OFFERTORY': 'Offertory',
-            'POSTLUDE': 'Postlude',
-            'OTHER': 'Other'
+            'Prelude': 'Prelude',
+            'Offertory': 'Offertory',
+            'Postlude': 'Postlude',
+            'Other': 'Other'
         };
         return roleMap[roleEnum] || roleEnum;
     }

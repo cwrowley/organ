@@ -234,10 +234,10 @@ class FormManager {
     populateRoleSelect(select) {
         const currentValue = select.value;
         const roles = [
-            { id: 'PRELUDE', name: 'Prelude' },
-            { id: 'POSTLUDE', name: 'Postlude' },
-            { id: 'OFFERTORY', name: 'Offertory' },
-            { id: 'OTHER', name: 'Other' }
+            { id: 'Prelude', name: 'Prelude' },
+            { id: 'Postlude', name: 'Postlude' },
+            { id: 'Offertory', name: 'Offertory' },
+            { id: 'Other', name: 'Other' }
         ];
 
         populateSelect(select, roles, {

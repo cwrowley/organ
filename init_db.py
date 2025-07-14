@@ -38,8 +38,8 @@ def populate_sample_data():
         db.add(gig)
         db.commit()  # Ensure gig has an ID before creating GigPiece
         db.refresh(gig)  # Refresh to get the ID
-        gig_pieces = [GigPiece(gig_id=gig.id, piece_id=1, role="PRELUDE"),
-                        GigPiece(gig_id=gig.id, piece_id=2, role="POSTLUDE")]
+        gig_pieces = [GigPiece(gig_id=gig.id, piece_id=1, role="Prelude"),
+                        GigPiece(gig_id=gig.id, piece_id=2, role="Postlude")]
         for p in gig_pieces:
             db.add(p)
         db.commit()

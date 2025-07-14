@@ -7,7 +7,7 @@
 * Improvements
 - [X] Add a field for "Occasion" in Gigs
 - [X] Add a field for "Notes" in Pieces (e.g., Orgelbuchlein page 32)
-- [ ] Move navigation buttons to top right to save vertical space
+- [X] Move navigation buttons to top right to save vertical space
 ** Main page
 - [ ] Omit "Info" and edit box from church list
 - [ ] Show church "detail" when church selected

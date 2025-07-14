@@ -110,10 +110,10 @@ function getChurchName(churchId) {
 // Role enum conversion utility
 function roleEnumToDisplayString(roleEnum) {
     const roleMap = {
-        'PRELUDE': 'Prelude',
-        'OFFERTORY': 'Offertory',
-        'POSTLUDE': 'Postlude',
-        'OTHER': 'Other'
+        'Prelude': 'Prelude',
+        'Offertory': 'Offertory',
+        'Postlude': 'Postlude',
+        'Other': 'Other'
     };
     
     return roleMap[roleEnum] || roleEnum;
@@ -122,9 +122,9 @@ function roleEnumToDisplayString(roleEnum) {
 // Helper function to get all valid roles with their display strings
 function getValidRoles() {
     return [
-        { value: 'PRELUDE', label: 'Prelude' },
-        { value: 'POSTLUDE', label: 'Postlude' },
-        { value: 'OFFERTORY', label: 'Offertory' },
-        { value: 'OTHER', label: 'Other' }
+        { value: 'Prelude', label: 'Prelude' },
+        { value: 'Postlude', label: 'Postlude' },
+        { value: 'Offertory', label: 'Offertory' },
+        { value: 'Other', label: 'Other' }
     ];
 }
