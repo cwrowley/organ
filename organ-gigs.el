@@ -71,7 +71,7 @@
                                  ("fee" . ,fee)
                                  ("occasion" . ,occasion)
                                  ("pieces" . ,(vconcat pieces-and-roles))))))
-    ;;(message "Sending payload: %s" payload)
+    ;; (message "Sending payload: %s" payload)
     (organ--post-request
      "/gigs/"
      :data payload
@@ -99,16 +99,18 @@
      (let ((id (alist-get 'id gig))
            (date (alist-get 'date gig))
            (church (alist-get 'name (alist-get 'church gig)))
-           (occasion (or (alist-get 'occasion gig) "")))
-       (list id (vector date church occasion))))
+           (occasion (or (alist-get 'occasion gig) ""))
+           (fee (format "%3d" (alist-get 'fee gig))))
+       (list id (vector date church occasion fee))))
    organ--gigs-cache))
 
 (define-derived-mode organ-gigs-mode
   tabulated-list-mode "Organ gigs"
   "Major mode for displaying organ gigs"
   (setq tabulated-list-format [("Date" 15 t)
-                               ("Church" 30 t)
-                               ("Occasion" 20 t)]
+                               ("Church" 35 t)
+                               ("Occasion" 25 t)
+                               ("Fee" 5 t)]
         tabulated-list-padding 2
         tabulated-list-sort-key (cons "Date" nil))
   (add-hook 'tabulated-list-revert-hook #'organ-gigs nil t)
