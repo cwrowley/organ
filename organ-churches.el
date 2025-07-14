@@ -45,7 +45,25 @@ Fetch churches if the cache is empty."
     (cdr (assoc selected-church organ--churches-cache))))
 
 
-;; TODO: add church
+(defun organ-add-church ()
+  "Interactively add a new church, using an API request"
+  (interactive)
+  (let* ((name (read-string "Enter church name: "))
+        (location (read-string "Enter location: "))
+        (info (read-string "Enter info: "))
+        (payload
+         (json-encode `((name . ,name)
+                        (location . ,location)
+                        (info . ,info)))))
+    (message "POST request with payload: %s" payload)
+    (organ--post-request
+     "/churches/"
+     :data payload
+     :success (cl-function
+               (lambda (&key data &allow-other-keys)
+                 (message "Church added successfully: %s" (alist-get 'id data)))))
+    (organ--refresh-churches)))
+
 ;; TODO: list churches, edit church
 
 (provide 'organ-churches)
