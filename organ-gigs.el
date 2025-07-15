@@ -57,13 +57,19 @@
                 (role . ,role))))
           gig-pieces))
 
+(defun organ--read-or-nil (msg)
+  "Prompt the user for input with message MSG
+Return the string, or nil if string is empty"
+  (interactive)
+  (let ((input (read-string msg)))
+    (if (string= input "") nil input)))
+
 (defun organ-add-gig ()
   "Interactively add a new gig."
   (interactive)
   (let* ((date (org-read-date nil t nil "Select gig date: "))
          (church-id (organ--select-church))
-         ;; (fee (read-string "Fee: "))
-         (fee nil)
+         (fee (organ--read-or-nil "Fee: "))
          (occasion (read-string "Occasion: "))
          (pieces-and-roles (organ--select-pieces-and-roles))
          (payload (json-encode `((date . ,(format-time-string "%Y-%m-%d" date))

@@ -12,7 +12,7 @@
   (when organ-debug-mode
     (apply 'message message args)))
 
-(transient-define-prefix organ-transient ()
+(transient-define-prefix organ-menu ()
  "Organ commands"
  ["Commands"
   ["Gigs"
@@ -24,6 +24,6 @@
   ["Churches"
    ("C" "Add Church" organ-add-church)]])
 
-(global-set-key (kbd "C-c o") 'organ-transient)
+(global-set-key (kbd "C-c o") 'organ-menu)
 
 (provide 'organ)
