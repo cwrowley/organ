@@ -74,7 +74,7 @@ Return the string, or nil if string is empty"
          (pieces-and-roles (organ--select-pieces-and-roles))
          (payload (json-encode `((date . ,(format-time-string "%Y-%m-%d" date))
                                  (church_id . ,church-id)
-                                 (fee . ,fee)
+                                 (fee . ,(if (string= fee "") nil fee))
                                  (occasion . ,occasion)
                                  (pieces . ,(vconcat pieces-and-roles))))))
     (organ--log "Sending payload: %s" payload)
@@ -119,7 +119,7 @@ Return the string, or nil if string is empty"
                                ("Occasion" 25 t)
                                ("Fee" 5 t)]
         tabulated-list-padding 2
-        tabulated-list-sort-key (cons "Date" nil))
+        tabulated-list-sort-key (cons "Date" t))
   (add-hook 'tabulated-list-revert-hook #'organ-gigs nil t)
   (tabulated-list-init-header))
 
@@ -135,17 +135,14 @@ Return the string, or nil if string is empty"
         tabulated-list-sort-key (cons "Role" nil))
   (tabulated-list-init-header))
 
-
 (defun organ--gig-pieces-entries (gig-pieces)
   "Convert PIECES to tabulated list entries"
-  (mapcar
-   (lambda (gig-piece)
-     (let* ((id (alist-get 'id gig-piece))
-           (role (alist-get 'role gig-piece))
-           (piece (alist-get 'piece gig-piece))
-           (piece-data (organ--piece-data-list piece)))
-       (list id (apply 'vector (cons role piece-data)))))
-   gig-pieces))
+  (cl-loop for gig-piece across gig-pieces
+           for id from 0
+           collect (let* ((role (alist-get 'role gig-piece))
+                          (piece (alist-get 'piece gig-piece))
+                          (piece-data (organ--piece-data-list piece)))
+                     (list id (apply 'vector (cons role piece-data))))))
 
 (defun organ--display-gig-pieces (&optional id)
   "Display pieces for the selected gig in a separate buffer."
@@ -164,26 +161,11 @@ Return the string, or nil if string is empty"
         (with-current-buffer buffer
           (organ-gig-pieces-mode)
           (setq tabulated-list-entries (organ--gig-pieces-entries gig-pieces))
+          (organ--log (format "gig-pieces is %S" gig-pieces))
+          (organ--log (format "tabulated-list-entries is %S" tabulated-list-entries))
           (setq-local this-gig gig)
           (tabulated-list-print t)
           (display-buffer buffer)))))))
-
-(defun organ--display-gig-pieces-bak (&optional id)
-  "Display pieces for the selected gig in a separate buffer."
-  (interactive)
-  (let* ((gig-id (or id (tabulated-list-get-id)))
-         (gig (seq-find (lambda (g) (= (alist-get 'id g) gig-id)) organ--gigs-cache))
-         (church (alist-get 'name (alist-get 'church gig)))
-         (date (alist-get 'date gig))
-         (gig-pieces (alist-get 'gig_pieces gig))
-         (buf-title (format "*Pieces for %s on %s*" church date))
-         (buffer (get-buffer-create buf-title)))
-    (with-current-buffer buffer
-      (organ-gig-pieces-mode)
-      (setq tabulated-list-entries (organ--gig-pieces-entries gig-pieces))
-      (setq-local this-gig gig)
-      (tabulated-list-print t)
-      (display-buffer buffer))))
 
 (defun organ--add-piece-to-gig ()
   "Add piece to the gig currently displayed in the gig-pieces buffer"
@@ -211,7 +193,38 @@ Return the string, or nil if string is empty"
       (message "Piece added to gig")
       (organ--display-gig-pieces id)))))
 
+(defun organ--remove-piece-from-gig ()
+  "Remove piece from the gig currently displayed in the gig-pieces buffer"
+  (interactive)
+  (let* ((id (tabulated-list-get-id)))
+    (when (yes-or-no-p (format "Are you sure you want to delete piece %d? " id))
+      (let* ((gig-id (alist-get 'id this-gig))
+             (date (alist-get 'date this-gig))
+             (church-id (alist-get 'id (alist-get 'church this-gig)))
+             (old-pieces (alist-get 'gig_pieces this-gig))
+             (new-pieces (vconcat (seq-subseq old-pieces 0 id)
+                                  (seq-subseq old-pieces (1+ id) (length old-pieces))))
+             (pieces-and-roles (organ--simplify-pieces new-pieces))
+             (fee (alist-get 'fee this-gig))
+             (occasion (alist-get 'occasion this-gig))
+             (payload (json-encode `((date . ,date)
+                                     (church_id . ,church-id)
+                                     (pieces . ,(vconcat pieces-and-roles))
+                                     (fee . ,fee)
+                                     (occasion . ,occasion)))))
+        (organ--log "old-pieces: %S (type: %s)"
+                    old-pieces
+                    (type-of old-pieces))
+        (organ--log "Sending payload: %s" payload)
+        (organ--put-request (format "/gigs/%d" gig-id)
+         :data payload
+         :success
+         (organ--callback data
+                          (message "Piece deleted from gig")
+                          (organ--display-gig-pieces gig-id)))))))
+
 (define-key organ-gig-pieces-mode-map (kbd "a") 'organ--add-piece-to-gig)
+(define-key organ-gig-pieces-mode-map (kbd "d") 'organ--remove-piece-from-gig)
 
 (defun organ--delete-gig ()
   "Delete the selected gig, sending request to the API"
@@ -225,27 +238,38 @@ Return the string, or nil if string is empty"
       (message "Gig %s deleted successfully" id)
       (organ-gigs))))))
 
-(defun organ--edit-gig ()
+(defun organ--edit-gig (&optional id)
   "Edit the selected gig, sending updated data to the API."
   (interactive)
-  (let* ((id (tabulated-list-get-id))
-         (gig (seq-find (lambda (g) (= (alist-get 'id g) id)) organ--gigs-cache))
-         (date (org-read-date nil t (alist-get 'date gig) "Edit gig date: "))
-         (church-id (organ--select-church-with-default (alist-get 'church gig)))
-         (pieces-and-roles (organ--edit-pieces-and-roles (alist-get 'gig_pieces gig)))
-         (fee (read-string "Edit gig fee: " (format "%.2f" (alist-get 'fee gig))))
-         (occasion (read-string "Edit occasion: " (or (alist-get 'occasion gig) "")))
-         (payload (json-encode `((date . ,(format-time-string "%Y-%m-%d" date))
-                                 (church_id . ,church-id)
-                                 (pieces . ,pieces-and-roles)
-                                 (fee . ,fee)
-                                 (occasion . ,occasion)))))
-    (organ--put-request (format "/gigs/%d" id)
-     :data payload
+  (let ((gig-id (or id (tabulated-list-get-id))))
+    (organ--get-request (format "/gigs/%d" gig-id)
      :success
      (organ--callback data
-      (message "Gig edited successfully")
-      (organ-gigs)))))
+      (let* ((gig (append data nil))
+             (date (org-read-date nil t (alist-get 'date gig) "Edit gig date: "))
+             (church-id (organ--select-church (alist-get 'church gig)))
+             (pieces (organ--simplify-pieces (alist-get 'gig_pieces gig)))
+             ;; (pieces (organ--edit-pieces-and-roles (alist-get 'gig_pieces gig)))
+             ;; (pieces-and-roles (alist-get 'gig_pieces gig))
+             ;; (pieces (if pieces-and-roles pieces-and-roles '[]))
+             (fee-raw (alist-get 'fee gig))
+             (fee-old (if fee-raw (format "%.0f" fee-raw) nil))
+             (fee (read-string "Edit gig fee: " fee-old))
+             (occasion (read-string "Edit occasion: " (or (alist-get 'occasion gig) "")))
+             (payload (json-encode `((id . ,id)
+                                     (date . ,(format-time-string "%Y-%m-%d" date))
+                                     (church_id . ,church-id)
+                                     (pieces . ,(vconcat pieces))
+                                     (fee . ,(if (string= fee "") nil fee))
+                                     (occasion . ,occasion)))))
+        (organ--log (format "original: %s" gig))
+        (organ--log (format "new: %s" payload))
+        (organ--put-request (format "/gigs/%d" gig-id)
+         :data payload
+         :success
+         (organ--callback data
+          (message "Gig edited successfully")
+          (organ-gigs))))))))
 
 (defun organ--edit-pieces-and-roles (current-pieces)
   "Edit pieces and roles with CURRENT-PIECES as default values."
@@ -270,7 +294,5 @@ Return the string, or nil if string is empty"
 (define-key organ-gigs-mode-map (kbd "g") 'organ-gigs)
 
 ;; TODO
-;; - delete a piece from a gig
-;; - edit a gig, populating pieces correctly
 ;; - probably don't need the gigs cache
 (provide 'organ-gigs)
