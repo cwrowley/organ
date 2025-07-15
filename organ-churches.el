@@ -17,52 +17,47 @@
   "Fetch the list of churches from the API, store it in `organ--churches-cache`, and execute CALLBACK if provided."
   (organ--get-request "/churches/"
    :success
-   (cl-function
-    (lambda (&key data &allow-other-keys)
-      (setq organ--churches-cache (mapcar #'organ--format-church data))
-      (message "Fetched and cached churches")
-      (when callback
-        (funcall callback))))))
+   (organ--callback data
+    (setq organ--churches-cache (mapcar #'organ--format-church data))
+    (organ--log "Fetched and cached churches")
+    (when callback
+      (funcall callback)))))
 
-(defun organ--select-church ()
+(defun organ--select-church (&optional default-church)
   "Prompt the user to select a church from the cached list and return its ID.
+If DEFAULT-CHURCH is provided, use it as the default value.
 Fetch churches if the cache is empty."
-  (interactive)
+  (interactive "P")
   (if organ--churches-cache
       (let* ((completion-table (mapcar #'car organ--churches-cache))
-             (selected-church (completing-read "Select a church: " completion-table nil t)))
-        (message "Selected church ID: %s" (cdr (assoc selected-church organ--churches-cache)))
-        (cdr (assoc selected-church organ--churches-cache)))
+             (default-name (when default-church (alist-get 'name default-church)))
+             (selected-church (completing-read "Select a church: " completion-table nil t nil nil default-name))
+             (selected-id (cdr (assoc selected-church organ--churches-cache))))
+        (organ--log "Selected church ID: %s" selected-id)
+        selected-id)
     (progn
-      (message "Cache is empty, fetching churches...")
-      (organ--refresh-churches #'organ--select-church))))
-
-(defun organ--select-church-with-default (default-church)
-  "Select a church, with DEFAULT-CHURCH as the default value."
-  (let* ((completion-table (mapcar #'car organ--churches-cache))
-         (default-name (alist-get 'name default-church))
-         (selected-church (completing-read "Select a church: " completion-table nil t nil nil default-name)))
-    (cdr (assoc selected-church organ--churches-cache))))
-
+      (organ--log "Cache is empty, fetching churches...")
+      (organ--refresh-churches (if default-church
+                                   (lambda () (organ--select-church default-church))
+                                 #'organ--select-church)))))
 
 (defun organ-add-church ()
   "Interactively add a new church, using an API request"
   (interactive)
   (let* ((name (read-string "Enter church name: "))
-        (location (read-string "Enter location: "))
-        (info (read-string "Enter info: "))
-        (payload
-         (json-encode `((name . ,name)
-                        (location . ,location)
-                        (info . ,info)))))
-    (message "POST request with payload: %s" payload)
-    (organ--post-request
-     "/churches/"
+         (location (read-string "Enter location: "))
+         (info (read-string "Enter info: "))
+         (payload
+          (json-encode `((name . ,name)
+                         (location . ,location)
+                         (info . ,info)))))
+    (organ--log "POST request with payload: %s" payload)
+    (organ--post-request "/churches/"
      :data payload
-     :success (cl-function
-               (lambda (&key data &allow-other-keys)
-                 (message "Church added successfully: %s" (alist-get 'id data)))))
-    (organ--refresh-churches)))
+     :success
+     (organ--callback data
+      (message "Church added successfully: %s" (alist-get 'id data))
+      (organ--refresh-churches)))))
 
 ;; TODO: list churches, edit church
 

@@ -14,6 +14,12 @@
   :type 'string
   :group 'organ)
 
+(defmacro organ--callback (arg &rest body)
+  `(cl-function
+    (lambda (&key data &allow-other-keys)
+      (let ((,arg data))
+        ,@body))))
+
 (defun organ--api-request (endpoint &rest args)
   "Make an API request to ENDPOINT with ARGS.
 ARGS can include :type, :headers, :data, :success, and :error."

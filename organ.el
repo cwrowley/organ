@@ -4,6 +4,14 @@
 (require 'organ-gigs)
 (require 'transient)
 
+(defvar organ-debug-mode nil
+  "If non-nil, enable debug message during execution.")
+
+(defun organ--log (message &rest args)
+  "Log MESSAGE if `oegan-debug-mode` is enabled."
+  (when organ-debug-mode
+    (apply 'message message args)))
+
 (transient-define-prefix organ-transient ()
  "Organ commands"
  ["Commands"

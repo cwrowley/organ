@@ -29,19 +29,18 @@
 Each cell in the cache has the form (\"composer - title\" . piece-id)."
   (organ--get-request "/pieces/"
    :success
-   (cl-function
-    (lambda (&key data &allow-other-keys)
-      (organ--populate-caches (append data nil))
-      (message "Fetched and cached pieces")
-      (when callback
-        (funcall callback))))))
+   (organ--callback data
+    (organ--populate-caches (append data nil))
+    (organ--log "Fetched and cached pieces")
+    (when callback
+      (funcall callback)))))
 
 (defun organ--ensure-pieces (callback)
   "Ensure `organ--pieces-cache` is populated. If not, call `organ--refresh-pieces` and then execute CALLBACK."
   (if organ--pieces-cache
       (funcall callback)
     (progn
-      (message "Fetching pieces...")
+      (organ--log "Fetching pieces...")
       (organ--refresh-pieces callback)
       (ignore))))
 
@@ -52,7 +51,7 @@ Each cell in the cache has the form (\"composer - title\" . piece-id)."
    (lambda ()
      (let* ((completion-table (mapcar #'car organ--pieces-cache))
             (selected-piece (completing-read "Select a piece: " completion-table nil t)))
-       (message "Selected piece ID: %s" (cdr (assoc selected-piece organ--pieces-cache)))
+       (organ--log "Selected piece ID: %s" (cdr (assoc selected-piece organ--pieces-cache)))
        (cdr (assoc selected-piece organ--pieces-cache))))))
 
 (defun organ-add-piece ()
@@ -64,25 +63,25 @@ Each cell in the cache has the form (\"composer - title\" . piece-id)."
             (composer (completing-read "Enter composer: " organ--composers-cache nil nil))
             (duration-input (read-string "Enter duration: "))
             (duration (if (string-empty-p duration-input) nil (string-to-number duration-input)))
-            (notes (read-string "Enter notes: ")))
+            (notes (read-string "Enter notes: "))
+            (payload (json-encode `((title . ,title)
+                                    (composer . ,composer)
+                                    (duration . ,duration)
+                                    (notes . ,notes)))))
        (organ--post-request "/pieces/"
-        :data (json-encode `(("title" . ,title)
-                             ("composer" . ,composer)
-                             ("duration" . ,duration)
-                             ("notes" . ,notes)))
-        :success (cl-function
-                  (lambda (&key data &allow-other-keys)
-                    (message "Piece added successfully: %s" (alist-get 'id data)))))
-       (organ--refresh-pieces)))))
+        :data payload
+        :success
+        (organ--callback data
+         (organ--log "Piece added successfully: %s" (alist-get 'id data))
+         (organ--refresh-pieces)))))))
 
 (defun organ--delete-piece-by-id (id)
   "Delete the piece with the given ID, using an API request"
-  (organ--delete-request
-   (format "/pieces/%d" id)
+  (organ--delete-request (format "/pieces/%d" id)
    :success
-   (cl-function
-    (lambda (&key data &allow-other-keys)
-      (message "Piece %d deleted" id)))))
+   (organ--callback data
+    (message "Piece %d deleted" id)
+    (organ--refresh-pieces))))
 
 (defun organ-delete-piece ()
   "Interactively delete a piece"
@@ -114,8 +113,8 @@ Each cell in the cache has the form (\"composer - title\" . piece-id)."
   "Convert SECONDS (integer) to a string in the format min:sec"
   (if (null seconds)
       ""
-    (let* ((minutes (/ seconds 60))
-           (secs (% seconds 60)))
+    (let ((minutes (/ seconds 60))
+          (secs (% seconds 60)))
       (format "%d:%02d" minutes secs))))
 
 (defun organ--piece-data-list (piece)
@@ -128,8 +127,8 @@ Each cell in the cache has the form (\"composer - title\" . piece-id)."
 
 (defun organ--extract-list-entry (piece)
   "Convert PIECE to an entry for a tabulated list"
-  (let* ((id (alist-get 'id piece))
-         (data-list (organ--piece-data-list piece)))
+  (let ((id (alist-get 'id piece))
+        (data-list (organ--piece-data-list piece)))
     (list id (apply 'vector data-list))))
 
 (defun organ--pieces-list-entries (pieces)
@@ -141,16 +140,15 @@ Each cell in the cache has the form (\"composer - title\" . piece-id)."
   (interactive)
   (organ--get-request "/pieces/"
    :success
-   (cl-function
-    (lambda (&key data &allow-other-keys)
-      (let ((buffer (get-buffer-create "*Organ Pieces*"))
-            (pieces (append data nil)))
-        (with-current-buffer buffer
-          (organ-pieces-mode)
-          (setq tabulated-list-entries (organ--pieces-list-entries pieces))
-          (organ--populate-caches pieces)
-          (tabulated-list-print t)
-          (switch-to-buffer buffer)))))))
+   (organ--callback data
+    (let ((buffer (get-buffer-create "*Organ Pieces*"))
+          (pieces (append data nil)))
+      (with-current-buffer buffer
+        (organ-pieces-mode)
+        (setq tabulated-list-entries (organ--pieces-list-entries pieces))
+        (organ--populate-caches pieces)
+        (tabulated-list-print t)
+        (switch-to-buffer buffer))))))
 
 ;; TODO: when piece selected, show gigs when each piece performed
 ;; TODO: edit a piece (by typing e in organ-pieces list)
