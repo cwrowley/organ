@@ -66,11 +66,9 @@ Return the string, or nil if string is empty"
 (defun organ-gigs ()
   "Fetch and display the list of gigs in a separate buffer."
   (interactive)
-  (organ--get-request
-   "/gigs"
+  (organ--get-request "/gigs/"
    :success
-   (organ--callback
-    data
+   (organ--callback data
     (let ((gigs (append data nil))
           (buffer (get-buffer-create "*Organ Gigs*")))
       (with-current-buffer buffer
