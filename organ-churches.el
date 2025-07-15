@@ -23,23 +23,28 @@
     (when callback
       (funcall callback)))))
 
+(defun organ--ensure-churches (callback)
+  "Ensure `organ--churches-cache` is populated. If not, call `organ--refresh-churches` and then execute CALLBACK."
+  (if organ--churches-cache
+      (funcall callback)
+    (progn
+      (organ--log "Fetching churches...")
+      (organ--refresh-churches callback)
+      (ignore))))
+
 (defun organ--select-church (&optional default-church)
   "Prompt the user to select a church from the cached list and return its ID.
 If DEFAULT-CHURCH is provided, use it as the default value.
-Fetch churches if the cache is empty."
+Fetch churches if the cache is empty.
+
+Note: should be called inside `organ--ensure-churches`"
   (interactive "P")
-  (if organ--churches-cache
-      (let* ((completion-table (mapcar #'car organ--churches-cache))
-             (default-name (when default-church (alist-get 'name default-church)))
-             (selected-church (completing-read "Select a church: " completion-table nil t nil nil default-name))
-             (selected-id (cdr (assoc selected-church organ--churches-cache))))
-        (organ--log "Selected church ID: %s" selected-id)
-        selected-id)
-    (progn
-      (organ--log "Cache is empty, fetching churches...")
-      (organ--refresh-churches (if default-church
-                                   (lambda () (organ--select-church default-church))
-                                 #'organ--select-church)))))
+  (let* ((completion-table (mapcar #'car organ--churches-cache))
+         (default-name (when default-church (alist-get 'name default-church)))
+         (selected-church (completing-read "Select a church: " completion-table nil t nil nil default-name))
+         (selected-id (cdr (assoc selected-church organ--churches-cache))))
+    (organ--log "Selected church ID: %s" selected-id)
+    selected-id))
 
 (defun organ-add-church ()
   "Interactively add a new church, using an API request"
