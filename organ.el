@@ -13,8 +13,8 @@
     (apply 'message message args)))
 
 (transient-define-prefix organ-menu ()
- "Organ commands"
- ["Commands"
+ "Commands for organ gigs"
+ ["Organ gigs commands"
   ["Gigs"
    ("g" "View Gigs" organ-gigs)
    ("G" "Add Gig" organ-add-gig)]
