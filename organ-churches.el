@@ -23,14 +23,15 @@
     (when callback
       (funcall callback)))))
 
-(defun organ--ensure-churches (callback)
-  "Ensure `organ--churches-cache` is populated. If not, call `organ--refresh-churches` and then execute CALLBACK."
-  (if organ--churches-cache
-      (funcall callback)
-    (progn
-      (organ--log "Fetching churches...")
-      (organ--refresh-churches callback)
-      (ignore))))
+(defmacro organ--ensure-churches (&rest body)
+  "Ensure `organ--churches-cache` is populated.
+If not, call `organ--refresh-churches` and then execute forms in BODY."
+  `(let ((callback (lambda () ,@body)))
+     (if organ--churches-cache
+         (funcall callback)
+       (progn
+         (organ--log "Fetching churches...")
+         (organ--refresh-churches callback)))))
 
 (defun organ--select-church (&optional default-church)
   "Prompt the user to select a church from the cached list and return its ID.

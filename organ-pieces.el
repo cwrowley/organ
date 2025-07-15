@@ -35,45 +35,46 @@ Each cell in the cache has the form (\"composer - title\" . piece-id)."
     (when callback
       (funcall callback)))))
 
-(defun organ--ensure-pieces (callback)
-  "Ensure `organ--pieces-cache` is populated. If not, call `organ--refresh-pieces` and then execute CALLBACK."
-  (if organ--pieces-cache
-      (funcall callback)
-    (progn
-      (organ--log "Fetching pieces...")
-      (organ--refresh-pieces callback)
-      (ignore))))
+(defmacro organ--ensure-pieces (&rest body)
+  "Ensure `organ--pieces-cache` is populated.
+If not, call `organ--refresh-pieces` and then execute forms in BODY."
+  `(let ((callback (lambda () ,@body)))
+     (if organ--pieces-cache
+         (funcall callback)
+       (progn
+         (organ--log "Fetching pieces...")
+         (organ--refresh-pieces callback)
+         (ignore)))))
 
 (defun organ--select-piece ()
   "Prompt the user to select a piece and return its ID."
   (interactive)
   (organ--ensure-pieces
-   (lambda ()
-     (let* ((completion-table (mapcar #'car organ--pieces-cache))
-            (selected-piece (completing-read "Select a piece: " completion-table nil t)))
-       (organ--log "Selected piece ID: %s" (cdr (assoc selected-piece organ--pieces-cache)))
-       (cdr (assoc selected-piece organ--pieces-cache))))))
+   (let* ((completion-table (mapcar #'car organ--pieces-cache))
+          (selected-piece (completing-read "Select a piece: " completion-table nil t)))
+     (organ--log "Selected piece ID: %s" (cdr (assoc selected-piece organ--pieces-cache)))
+     (cdr (assoc selected-piece organ--pieces-cache)))))
 
 (defun organ-add-piece ()
   "Interactively add a new piece, using an API request"
   (interactive)
   (organ--ensure-pieces
-   (lambda ()
-     (let* ((title (read-string "Enter piece title: "))
-            (composer (completing-read "Enter composer: " organ--composers-cache nil nil))
-            (duration-input (read-string "Enter duration: "))
-            (duration (if (string-empty-p duration-input) nil (string-to-number duration-input)))
-            (notes (read-string "Enter notes: "))
-            (payload (json-encode `((title . ,title)
-                                    (composer . ,composer)
-                                    (duration . ,duration)
-                                    (notes . ,notes)))))
-       (organ--post-request "/pieces/"
-        :data payload
-        :success
-        (organ--callback data
-         (organ--log "Piece added successfully: %s" (alist-get 'id data))
-         (organ--refresh-pieces)))))))
+   (let* ((title (read-string "Enter piece title: "))
+          (composer (completing-read "Enter composer: " organ--composers-cache nil nil))
+          (duration-input (read-string "Enter duration: "))
+          (duration (if (string-empty-p duration-input) nil (string-to-number duration-input)))
+          (notes (read-string "Enter notes: "))
+          (payload (json-encode `((title . ,title)
+                                  (composer . ,composer)
+                                  (duration . ,duration)
+                                  (notes . ,notes)))))
+     (organ--post-request
+      "/pieces/"
+      :data payload
+      :success
+      (organ--callback data
+                       (organ--log "Piece added successfully: %s" (alist-get 'id data))
+                       (organ--refresh-pieces))))))
 
 (defun organ--delete-piece-by-id (id)
   "Delete the piece with the given ID, using an API request"
@@ -152,6 +153,8 @@ Each cell in the cache has the form (\"composer - title\" . piece-id)."
 
 ;; TODO: when piece selected, show gigs when each piece performed
 ;; TODO: edit a piece (by typing e in organ-pieces list)
+;; - show date last performed
+;; - highlight color based on date last performed
 
 (define-key organ-pieces-mode-map (kbd "a") 'organ-add-piece)
 (define-key organ-pieces-mode-map (kbd "d") 'organ--delete-piece)
