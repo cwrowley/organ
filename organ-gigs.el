@@ -5,28 +5,6 @@
 (require 'organ-churches)
 (require 'organ-pieces)
 
-(defvar organ--gigs-cache nil
-  "Variable to store the fetched gigs data.")
-
-(defun organ--refresh-gigs (&optional callback)
-  "Fetch the list of gigs from the API, store it in `organ--gigs-cache`, and execute CALLBACK if provided."
-  (organ--get-request "/gigs/"
-   :success
-   (organ--callback data
-    (setq organ--gigs-cache (append data nil))
-    (message "Fetched and cached gigs")
-    (when callback
-      (funcall callback)))))
-
-(defun organ--ensure-gigs (callback)
-  "Ensure `organ--gigs-cache` is populated. If not, call `organ--refresh-gigs` and then execute CALLBACK."
-  (if organ--gigs-cache
-      (funcall callback)
-    (progn
-      (message "Fetching gigs...")
-      (organ--refresh-gigs callback)
-      (ignore))))
-
 (defun organ--select-role ()
   "Prompt the user to select a role for a piece."
   (let ((roles '("Prelude" "Offertory" "Postlude" "Other")))
@@ -88,17 +66,21 @@ Return the string, or nil if string is empty"
 (defun organ-gigs ()
   "Fetch and display the list of gigs in a separate buffer."
   (interactive)
-  (organ--refresh-gigs
-   (lambda ()
-     (let ((buffer (get-buffer-create "*Organ Gigs*")))
-       (with-current-buffer buffer
-         (organ-gigs-mode)
-         (setq tabulated-list-entries (organ--gigs-list-entries))
-         (tabulated-list-print t)
-         (switch-to-buffer buffer))))))
+  (organ--get-request
+   "/gigs"
+   :success
+   (organ--callback
+    data
+    (let ((gigs (append data nil))
+          (buffer (get-buffer-create "*Organ Gigs*")))
+      (with-current-buffer buffer
+        (organ-gigs-mode)
+        (setq tabulated-list-entries (organ--gigs-list-entries gigs))
+        (tabulated-list-print t)
+        (switch-to-buffer buffer))))))
 
-(defun organ--gigs-list-entries ()
-  "Convert `organ--gigs-cache` to tabulated list entries."
+(defun organ--gigs-list-entries (gigs)
+  "Convert GIGS to tabulated list entries."
   (mapcar
    (lambda (gig)
      (let ((id (alist-get 'id gig))
@@ -109,7 +91,7 @@ Return the string, or nil if string is empty"
                     (format "%3d" (alist-get 'fee gig))
                   "")))
        (list id (vector date church occasion fee))))
-   organ--gigs-cache))
+   gigs))
 
 (define-derived-mode organ-gigs-mode
   tabulated-list-mode "Organ gigs"
