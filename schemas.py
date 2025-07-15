@@ -62,7 +62,7 @@ class GigPieceOut(BaseModel):
 class GigCreate(BaseModel):
     date: date
     church_id: int
-    fee: float
+    fee: Optional[float]
     occasion: Optional[str]
     pieces: list[GigPieceCreate]
 
