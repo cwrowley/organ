@@ -25,7 +25,7 @@
 ** DONE Improve gig editing, to add additional pieces
 ** DONE Improve gig editing: edit fee, occasion
 ** DONE Improve gig editing: delete a piece
-** TODO Edit a piece
+** DONE Edit a piece
 - Composer: Sigfrid Karg-Elert
 - Title: Brahms O wie selig
 ** TODO Add faces

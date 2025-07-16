@@ -61,7 +61,7 @@ If not, call `organ--refresh-pieces` and then execute forms in BODY."
   (organ--ensure-pieces
    (let* ((title (read-string "Enter piece title: "))
           (composer (completing-read "Enter composer: " organ--composers-cache nil nil))
-          (duration-input (read-string "Enter duration: "))
+          (duration-input (read-string "Enter duration (sec): "))
           (duration (if (string-empty-p duration-input) nil (string-to-number duration-input)))
           (notes (read-string "Enter notes: "))
           (payload (json-encode `((title . ,title)
@@ -75,6 +75,40 @@ If not, call `organ--refresh-pieces` and then execute forms in BODY."
       (organ--callback data
                        (organ--log "Piece added successfully: %s" (alist-get 'id data))
                        (organ--refresh-pieces))))))
+
+(defun organ--edit-piece (&optional id)
+  "Edit the selected piece, sending updated data to the API."
+  (interactive)
+  (organ--ensure-pieces
+   (let ((piece-id (or id (tabulated-list-get-id))))
+     (organ--get-request
+      (format "/pieces/%d" piece-id)
+      :success
+      (organ--callback
+       data
+       (let* ((piece (append data nil))
+              (title (read-string "Edit piece title: " (alist-get 'title piece)))
+              (composer (completing-read "Edit composer: " organ--composers-cache nil nil (alist-get 'composer piece)))
+              (duration-prev (alist-get 'duration piece))
+              (duration-str (if duration-prev (number-to-string duration-prev) ""))
+              (duration-input (read-string "Edit duration (sec): " duration-str))
+              (duration (if (string-empty-p duration-input) nil (string-to-number duration-input)))
+              (notes (read-string "Edit notes: " (alist-get 'notes piece)))
+              (payload (json-encode `((id . ,piece-id)
+                                      (title . ,title)
+                                      (composer . ,composer)
+                                      (duration . ,duration)
+                                      (notes . ,notes)))))
+         (organ--log (format "Edit piece payload: %s" payload))
+         (organ--put-request
+          (format "/pieces/%d" piece-id)
+          :data payload
+          :success
+          (organ--callback
+           data
+           (message "Piece edited successfully")
+           (organ--refresh-pieces)))))))))
+
 
 (defun organ--delete-piece-by-id (id)
   "Delete the piece with the given ID, using an API request"
@@ -158,5 +192,6 @@ If not, call `organ--refresh-pieces` and then execute forms in BODY."
 
 (define-key organ-pieces-mode-map (kbd "a") 'organ-add-piece)
 (define-key organ-pieces-mode-map (kbd "d") 'organ--delete-piece)
+(define-key organ-pieces-mode-map (kbd "e") 'organ--edit-piece)
 
 (provide 'organ-pieces)
