@@ -185,6 +185,48 @@ If not, call `organ--refresh-pieces` and then execute forms in BODY."
         (tabulated-list-print t)
         (switch-to-buffer buffer))))))
 
+(defun organ--display-performances (&optional id)
+  "Display performances for the selected piece in a separate buffer."
+  (interactive)
+  (let ((piece-id (or id (tabulated-list-get-id))))
+    (organ--get-request
+     (format "/pieces/%d/gigs" piece-id)
+     :success
+     (organ--callback
+      data
+      (let* ((gigs (append data nil))
+             (buf-title "*Performances*")
+             (buffer (get-buffer-create buf-title)))
+        (organ--log "returned gigs for %d is %s" piece-id gigs)
+        (with-current-buffer buffer
+          (organ-performances-mode)
+          (setq tabulated-list-entries (organ--performances-entries gigs))
+          (tabulated-list-print t)
+          (display-buffer buffer)))))))
+
+(defun organ--performances-entries (gigs)
+  "Convert GIGS to tabulated list entries"
+  (mapcar #'organ--performance-entry gigs))
+
+(defun organ--performance-entry (gig)
+  "Convert GIG to an entry for a tabulated list"
+  (let* ((id (alist-get 'id gig))
+         (date (alist-get 'date gig))
+         (church (alist-get 'church gig))
+         (church-name (alist-get 'name church))
+         (occasion (alist-get 'occasion gig)))
+    (list id (apply 'vector (list date church-name occasion)))))
+
+(define-derived-mode organ-performances-mode
+  tabulated-list-mode "Organ performances"
+  "Major mode for displaying performances of a particular piece"
+  (setq tabulated-list-format [("Date" 12 t)
+                               ("Church" 35 t)
+                               ("Occasion" 20 t)]
+        tabulated-list-padding 2
+        tabulated-list-sort-key (cons "Date" t))
+  (tabulated-list-init-header))
+
 ;; TODO: when piece selected, show gigs when each piece performed
 ;; TODO: edit a piece (by typing e in organ-pieces list)
 ;; - show date last performed
@@ -193,5 +235,6 @@ If not, call `organ--refresh-pieces` and then execute forms in BODY."
 (define-key organ-pieces-mode-map (kbd "a") 'organ-add-piece)
 (define-key organ-pieces-mode-map (kbd "d") 'organ--delete-piece)
 (define-key organ-pieces-mode-map (kbd "e") 'organ--edit-piece)
+(define-key organ-pieces-mode-map (kbd "RET") 'organ--display-performances)
 
 (provide 'organ-pieces)

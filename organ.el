@@ -4,7 +4,7 @@
 (require 'organ-gigs)
 (require 'transient)
 
-(defvar organ-debug-mode t
+(defvar organ-debug-mode nil
   "If non-nil, enable debug message during execution.")
 
 (defun organ--log (message &rest args)

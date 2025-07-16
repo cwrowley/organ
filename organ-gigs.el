@@ -117,9 +117,6 @@ Return the string, or nil if string is empty"
         (when date-cell
           (let* ((date (date-to-time (format "%s" date-cell)))
                  (now (current-time)))
-            (message "date-cell: %s" date-cell)
-            (message "date: %s" date)
-            (message "now: %s" now)
             (when (time-less-p now date)
               (add-text-properties (line-beginning-position) (line-end-position)
                                    '(face 'font-lock-function-name-face))))))
@@ -276,7 +273,7 @@ Return the string, or nil if string is empty"
                (fee-old (if fee-raw (format "%.0f" fee-raw) nil))
                (fee (read-string "Edit gig fee: " fee-old))
                (occasion (read-string "Edit occasion: " (or (alist-get 'occasion gig) "")))
-               (payload (json-encode `((id . ,id)
+               (payload (json-encode `((id . ,gig-id)
                                        (date . ,date)
                                        (church_id . ,church-id)
                                        (pieces . ,(vconcat pieces))
