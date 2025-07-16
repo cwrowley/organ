@@ -23,9 +23,11 @@
 #+end_src
 ** DONE Show gig pieces in tabulated-list mode
 ** DONE Improve gig editing, to add additional pieces
-** TODO Improve gig editing: edit fee, occasion
-** TODO Improve gig editing: delete a piece
+** DONE Improve gig editing: edit fee, occasion
+** DONE Improve gig editing: delete a piece
 ** TODO Edit a piece
+- Composer: Sigfrid Karg-Elert
+- Title: Brahms O wie selig
 ** TODO Add faces
 #+begin_src emacs-lisp
 (defun my-package-make-tabulated-list-entries ()

@@ -47,12 +47,12 @@ Return the string, or nil if string is empty"
   (interactive)
   (organ--ensure-churches
    (organ--ensure-pieces
-    (let* ((date (org-read-date nil t nil "Select gig date: "))
+    (let* ((date (org-read-date nil nil nil "Select gig date: "))
            (church-id (organ--select-church))
            (fee (organ--read-or-nil "Fee: "))
            (occasion (read-string "Occasion: "))
            (pieces-and-roles (organ--select-pieces-and-roles))
-           (payload (json-encode `((date . ,(format-time-string "%Y-%m-%d" date))
+           (payload (json-encode `((date . ,date)
                                    (church_id . ,church-id)
                                    (fee . ,(if (string= fee "") nil fee))
                                    (occasion . ,occasion)
@@ -63,7 +63,7 @@ Return the string, or nil if string is empty"
        :success
        (organ--callback data
         (message "Gig added successfully: %s" (alist-get 'id data))
-        (organ-gigs)))))))
+        (organ-gigs-refresh)))))))
 
 (defun organ-gigs ()
   "Fetch and display the list of gigs in a separate buffer."
@@ -74,10 +74,24 @@ Return the string, or nil if string is empty"
     (let ((gigs (append data nil))
           (buffer (get-buffer-create "*Organ Gigs*")))
       (with-current-buffer buffer
+        (read-only-mode -1)
+        (erase-buffer)
         (organ-gigs-mode)
         (setq tabulated-list-entries (organ--gigs-list-entries gigs))
         (tabulated-list-print t)
+        (organ--gigs-set-faces)
         (switch-to-buffer buffer))))))
+
+(defun organ-gigs-refresh ()
+  "Refresh the displayed list of gigs."
+  (interactive)
+  (organ--get-request "/gigs/"
+   :success
+   (organ--callback data
+    (let ((gigs (append data nil)))
+      (setq tabulated-list-entries (organ--gigs-list-entries gigs))
+      (tabulated-list-print t)
+      (organ--gigs-set-faces)))))
 
 (defun organ--gigs-list-entries (gigs)
   "Convert GIGS to tabulated list entries."
@@ -93,6 +107,24 @@ Return the string, or nil if string is empty"
        (list id (vector date church occasion fee))))
    gigs))
 
+(defun organ--gigs-set-faces ()
+  "Set row faces based on the date of the gigs."
+  (save-excursion
+    (read-only-mode -1)
+    (goto-char (point-min))
+    (while (not (eobp))
+      (let ((date-cell (aref (tabulated-list-get-entry) 0)))
+        (when date-cell
+          (let* ((date (date-to-time (format "%s" date-cell)))
+                 (now (current-time)))
+            (message "date-cell: %s" date-cell)
+            (message "date: %s" date)
+            (message "now: %s" now)
+            (when (time-less-p now date)
+              (add-text-properties (line-beginning-position) (line-end-position)
+                                   '(face 'font-lock-function-name-face))))))
+      (forward-line 1))))
+
 (define-derived-mode organ-gigs-mode
   tabulated-list-mode "Organ gigs"
   "Major mode for displaying organ gigs"
@@ -102,7 +134,7 @@ Return the string, or nil if string is empty"
                                ("Fee" 5 t)]
         tabulated-list-padding 2
         tabulated-list-sort-key (cons "Date" t))
-  (add-hook 'tabulated-list-revert-hook #'organ-gigs nil t)
+  (add-hook 'tabulated-list-revert-hook #'organ-gigs-refresh nil t)
   (tabulated-list-init-header))
 
 (define-derived-mode organ-gig-pieces-mode
@@ -219,7 +251,7 @@ Return the string, or nil if string is empty"
      :success
      (organ--callback data
       (message "Gig %s deleted successfully" id)
-      (organ-gigs))))))
+      (organ-gigs-refresh))))))
 
 (defun organ--edit-gig (&optional id)
   "Edit the selected gig, sending updated data to the API."
@@ -233,7 +265,8 @@ Return the string, or nil if string is empty"
        (organ--callback
         data
         (let* ((gig (append data nil))
-               (date (org-read-date nil t (alist-get 'date gig) "Edit gig date: "))
+               (orig-date (date-to-time (format "%s" (alist-get 'date gig))))
+               (date (org-read-date nil nil nil "Edit gig date: " orig-date))
                (church-id (organ--select-church (alist-get 'church gig)))
                (pieces (organ--simplify-pieces (alist-get 'gig_pieces gig)))
                ;; (pieces (organ--edit-pieces-and-roles (alist-get 'gig_pieces gig)))
@@ -244,7 +277,7 @@ Return the string, or nil if string is empty"
                (fee (read-string "Edit gig fee: " fee-old))
                (occasion (read-string "Edit occasion: " (or (alist-get 'occasion gig) "")))
                (payload (json-encode `((id . ,id)
-                                       (date . ,(format-time-string "%Y-%m-%d" date))
+                                       (date . ,date)
                                        (church_id . ,church-id)
                                        (pieces . ,(vconcat pieces))
                                        (fee . ,(if (string= fee "") nil fee))
@@ -258,7 +291,7 @@ Return the string, or nil if string is empty"
            (organ--callback
             data
             (message "Gig edited successfully")
-            (organ-gigs))))))))))
+            (organ-gigs-refresh))))))))))
 
 (defun organ--edit-pieces-and-roles (current-pieces)
   "Edit pieces and roles with CURRENT-PIECES as default values."
@@ -280,7 +313,7 @@ Return the string, or nil if string is empty"
 (define-key organ-gigs-mode-map (kbd "a") 'organ-add-gig)
 (define-key organ-gigs-mode-map (kbd "d") 'organ--delete-gig)
 (define-key organ-gigs-mode-map (kbd "e") 'organ--edit-gig)
-(define-key organ-gigs-mode-map (kbd "g") 'organ-gigs)
+(define-key organ-gigs-mode-map (kbd "g") 'organ-gigs-refresh)
 
 ;; TODO
 ;; - Highlight currently selected gig in tabulated list
