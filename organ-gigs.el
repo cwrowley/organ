@@ -211,8 +211,9 @@ Return the string, or nil if string is empty"
 (defun organ--remove-piece-from-gig ()
   "Remove piece from the gig currently displayed in the gig-pieces buffer"
   (interactive)
-  (let* ((id (tabulated-list-get-id)))
-    (when (yes-or-no-p (format "Are you sure you want to delete piece %d? " id))
+  (let* ((id (tabulated-list-get-id))
+         (name (aref (tabulated-list-get-entry) 2)))
+    (when (yes-or-no-p (format "Are you sure you want to remove %s from gig? " name))
       (let* ((gig-id (alist-get 'id this-gig))
              (date (alist-get 'date this-gig))
              (church-id (alist-get 'id (alist-get 'church this-gig)))
@@ -244,8 +245,9 @@ Return the string, or nil if string is empty"
 (defun organ--delete-gig ()
   "Delete the selected gig, sending request to the API"
   (interactive)
-  (let* ((id (tabulated-list-get-id)))
-    (when (yes-or-no-p (format "Are you sure you want to delete gig %d? " id))
+  (let* ((id (tabulated-list-get-id))
+         (date (aref (tabulated-list-get-entry) 0)))
+    (when (yes-or-no-p (format "Are you sure you want to delete gig on %s? " date))
     (organ--delete-request
      (format "/gigs/%d" id)
      :success

@@ -128,8 +128,9 @@ If not, call `organ--refresh-pieces` and then execute forms in BODY."
 (defun organ--delete-piece ()
   "Delete the selected piece, sending request to the API"
   (interactive)
-  (let* ((id (tabulated-list-get-id)))
-    (when (yes-or-no-p (format "Are you sure you want to delete piece %d? " id))
+  (let* ((id (tabulated-list-get-id))
+         (name (aref (tabulated-list-get-entry) 1)))
+    (when (yes-or-no-p (format "Are you sure you want to delete %s? " name))
       (organ--delete-piece-by-id id)
       (organ-pieces))))
 
