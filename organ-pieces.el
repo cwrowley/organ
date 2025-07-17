@@ -1,6 +1,7 @@
 ;; -*- lexical-binding: t; -*-
 
 (require 'cl-lib)
+(require 'tablist)
 (require 'organ-api)
 
 (defvar organ--pieces-cache nil
@@ -135,13 +136,14 @@ If not, call `organ--refresh-pieces` and then execute forms in BODY."
 (define-derived-mode organ-pieces-mode
   tabulated-list-mode "Organ pieces"
   "Major mode for displaying organ pieces"
-  (setq tabulated-list-format [("Composer" 20 t)
-                               ("Title" 30 t)
+  (setq tabulated-list-format [("Composer" 24 t)
+                               ("Title" 40 t)
                                ("Duration" 8 t)
                                ("Notes" 15 t)]
         tabulated-list-padding 2
         tabulated-list-sort-key (cons "Composer" nil))
   (add-hook 'tabulated-list-revert-hook #'organ-pieces nil t)
+  (tablist-minor-mode)
   (tabulated-list-init-header))
 
 (defun organ--format-duration (seconds)
@@ -225,6 +227,7 @@ If not, call `organ--refresh-pieces` and then execute forms in BODY."
                                ("Occasion" 20 t)]
         tabulated-list-padding 2
         tabulated-list-sort-key (cons "Date" t))
+  (tablist-minor-mode)
   (tabulated-list-init-header))
 
 ;; TODO: when piece selected, show gigs when each piece performed

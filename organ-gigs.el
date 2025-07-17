@@ -1,6 +1,7 @@
 ;; -*- lexical-binding: t; -*-
 
 (require 'cl-lib)
+(require 'tablist)
 (require 'organ-api)
 (require 'organ-churches)
 (require 'organ-pieces)
@@ -132,18 +133,20 @@ Return the string, or nil if string is empty"
         tabulated-list-padding 2
         tabulated-list-sort-key (cons "Date" t))
   (add-hook 'tabulated-list-revert-hook #'organ-gigs-refresh nil t)
+  (tablist-minor-mode)
   (tabulated-list-init-header))
 
 (define-derived-mode organ-gig-pieces-mode
   tabulated-list-mode "Organ gig pieces"
   "Major mode for displaying pieces for organ gigs"
   (setq tabulated-list-format [("Role" 10 t)
-                               ("Composer" 20 t)
-                               ("Title" 30 t)
+                               ("Composer" 24 t)
+                               ("Title" 40 t)
                                ("Duration" 8 t)
                                ("Notes" 15 t)]
         tabulated-list-padding 2
         tabulated-list-sort-key (cons "Role" nil))
+  (tablist-minor-mode)
   (tabulated-list-init-header))
 
 (defun organ--gig-pieces-entries (gig-pieces)
