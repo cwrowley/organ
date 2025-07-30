@@ -1,9 +1,10 @@
 from fastapi import APIRouter, Depends, HTTPException
-from models import Church, Gig
-from schemas import ChurchCreate, ChurchOut, GigOut
-from session import get_db
 from sqlalchemy import desc
 from sqlalchemy.orm import Session
+
+from app.models import Church, Gig
+from app.schemas import ChurchCreate, ChurchOut, GigOut
+from app.session import get_db
 
 router = APIRouter()
 

@@ -1,9 +1,10 @@
 from fastapi import APIRouter, Depends, HTTPException
-from models import Gig, GigPiece, Piece
-from schemas import GigOut, PieceCreate, PieceOut
-from session import get_db
 from sqlalchemy import desc
 from sqlalchemy.orm import Session
+
+from app.models import Gig, GigPiece, Piece
+from app.schemas import GigOut, PieceCreate, PieceOut
+from app.session import get_db
 
 router = APIRouter()
 
