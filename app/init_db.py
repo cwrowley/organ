@@ -1,12 +1,18 @@
+import os
 from datetime import date
 
 from models import Base, Church, Gig, GigPiece, Piece
-from session import SessionLocal, engine
+from session import DATABASE_PATH, SessionLocal, engine
 
 
 def init_db():
+    # Ensure the database directory exists
+    db_dir = os.path.dirname(DATABASE_PATH)
+    if db_dir:  # Only create directory if there is a directory path
+        os.makedirs(db_dir, exist_ok=True)
+
     Base.metadata.create_all(bind=engine)
-    print("Database tables created.")
+    print(f"Database tables created at: {DATABASE_PATH}")
 
 def populate_sample_data():
     db = SessionLocal()
