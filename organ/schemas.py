@@ -3,7 +3,7 @@ from typing import Optional
 
 from pydantic import BaseModel, ConfigDict
 
-from app.models import Role
+from organ.models import Role
 
 # ----------------------------
 # Piece Schemas
