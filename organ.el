@@ -1,4 +1,4 @@
-;; -*- lexical-binding: t; -*-
+;;; organ.el --- Organize organ gigs and repertoire -*- lexical-binding: t; -*-
 ;; Author: Clancy Rowley <clancyr@gmail.com>
 ;; Version: 1.0
 ;; Package-Requires: ((emacs "24.3") (tablist "1.0") (request "0.3.0") (transient "0.3.0"))
