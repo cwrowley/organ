@@ -1,3 +1,10 @@
+;; -*- lexical-binding: t; -*-
+;; Author: Clancy Rowley <clancyr@gmail.com>
+;; Version: 1.0
+;; Package-Requires: ((emacs "24.3") (tablist "1.0") (request "0.3.0") (transient "0.3.0"))
+;; Keywords: music
+;; URL: https://github.com/cwrowley/organ-emacs
+
 (require 'organ-api)
 (require 'organ-pieces)
 (require 'organ-churches)
