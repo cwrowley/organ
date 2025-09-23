@@ -158,6 +158,9 @@ Return the string, or nil if string is empty"
                           (piece-data (organ--piece-data-list piece)))
                      (list id (apply 'vector (cons role piece-data))))))
 
+(defvar-local this-gig nil
+  "Buffer-local variable to store the current gig data.")
+
 (defun organ--display-gig-pieces (&optional id)
   "Display pieces for the selected gig in a separate buffer."
   (interactive)
@@ -204,7 +207,7 @@ Return the string, or nil if string is empty"
      (organ--put-request (format "/gigs/%d" id)
       :data payload
       :success
-      (organ--callback data
+      (organ--callback _data
        (message "Piece added to gig")
        (organ--display-gig-pieces id))))))
 
@@ -235,7 +238,7 @@ Return the string, or nil if string is empty"
         (organ--put-request (format "/gigs/%d" gig-id)
          :data payload
          :success
-         (organ--callback data
+         (organ--callback _data
                           (message "Piece deleted from gig")
                           (organ--display-gig-pieces gig-id)))))))
 
@@ -251,7 +254,7 @@ Return the string, or nil if string is empty"
     (organ--delete-request
      (format "/gigs/%d" id)
      :success
-     (organ--callback data
+     (organ--callback _data
       (message "Gig %s deleted successfully" id)
       (organ-gigs-refresh))))))
 
@@ -291,7 +294,7 @@ Return the string, or nil if string is empty"
            :data payload
            :success
            (organ--callback
-            data
+            _data
             (message "Gig edited successfully")
             (organ-gigs-refresh))))))))))
 

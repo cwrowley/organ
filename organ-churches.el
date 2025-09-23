@@ -14,7 +14,7 @@
     (cons name id)))
 
 (defun organ--refresh-churches (&optional callback)
-  "Fetch the list of churches from the API, store it in `organ--churches-cache`, and execute CALLBACK if provided."
+  "Fetch and cache list of churches from the API, and execute CALLBACK if provided."
   (organ--get-request "/churches/"
    :success
    (organ--callback data

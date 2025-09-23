@@ -26,8 +26,10 @@
   (setq organ--composers-cache (delete-dups (mapcar #'organ--extract-composer pieces))))
 
 (defun organ--refresh-pieces (&optional callback)
-  "Fetch the list of pieces from the API, store it in `organ--pieces-cache`, and execute CALLBACK if provided
-Each cell in the cache has the form (\"composer - title\" . piece-id)."
+  "Fetch and cache list of pieces from the API, and execute CALLBACK if provided.
+Each cell in the cache has the form (\"composer - title\" . piece-id).
+This function retrieves the pieces and calls the optional callback
+after the operation is complete."
   (organ--get-request "/pieces/"
    :success
    (organ--callback data
@@ -106,7 +108,7 @@ If not, call `organ--refresh-pieces` and then execute forms in BODY."
           :data payload
           :success
           (organ--callback
-           data
+           _data
            (message "Piece edited successfully")
            (organ--refresh-pieces)))))))))
 
@@ -115,7 +117,7 @@ If not, call `organ--refresh-pieces` and then execute forms in BODY."
   "Delete the piece with the given ID, using an API request"
   (organ--delete-request (format "/pieces/%d" id)
    :success
-   (organ--callback data
+   (organ--callback _data
     (message "Piece %d deleted" id)
     (organ--refresh-pieces))))
 
