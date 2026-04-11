@@ -14,6 +14,18 @@
   :type 'string
   :group 'organ)
 
+(defcustom organ-api-key ""
+  "API key for authenticating with the organ backend.
+Set this in your init file: (setq organ-api-key \"your-key-here\")"
+  :type 'string
+  :group 'organ)
+
+(defun organ--auth-headers ()
+  "Return an alist of auth headers, or signal an error if key is unset."
+  (when (string-empty-p organ-api-key)
+    (error "organ-api-key is not set.  Add (setq organ-api-key \"...\") to your init file"))
+  (list (cons "Authorization" (concat "Bearer " organ-api-key))))
+
 (defmacro organ--callback (arg &rest body)
   `(cl-function
     (lambda (&key data &allow-other-keys)
@@ -43,28 +55,28 @@ ARGS can include :type, :headers, :data, :success, and :error."
   "Make a GET request to ENDPOINT with ARGS."
   (apply 'organ--api-request endpoint
          :type "GET"
-         :headers '(("Accept" . "application/json"))
+         :headers (append '(("Accept" . "application/json")) (organ--auth-headers))
          args))
 
 (defun organ--post-request (endpoint &rest args)
   "Make a POST request to ENDPOINT with ARGS."
   (apply 'organ--api-request endpoint
          :type "POST"
-         :headers '(("Content-Type" . "application/json"))
+         :headers (append '(("Content-Type" . "application/json")) (organ--auth-headers))
          args))
 
 (defun organ--put-request (endpoint &rest args)
   "Make a PUT request to ENDPOINT with ARGS."
   (apply 'organ--api-request endpoint
          :type "PUT"
-         :headers '(("Content-Type" . "application/json"))
+         :headers (append '(("Content-Type" . "application/json")) (organ--auth-headers))
          args))
 
 (defun organ--delete-request (endpoint &rest args)
   "Make a DELETE request to ENDPOINT with ARGS."
   (apply 'organ--api-request endpoint
          :type "DELETE"
-         :headers '(("Accept" . "application/json"))
+         :headers (append '(("Accept" . "application/json")) (organ--auth-headers))
          args))
 
 (provide 'organ-api)

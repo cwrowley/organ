@@ -10,6 +10,7 @@ Run via: uv run --directory /path/to/backend python -m organ.mcp_server
 Claude Code launches this automatically as a subprocess (stdio transport).
 """
 
+import os
 from datetime import date
 
 import httpx
@@ -17,6 +18,13 @@ from mcp.server.fastmcp import FastMCP
 
 mcp = FastMCP("Organ Gigs")
 BASE_URL = "http://localhost:1685"
+
+
+def _auth_headers() -> dict[str, str]:
+    api_key = os.environ.get("ORGAN_API_KEY", "")
+    if not api_key:
+        raise RuntimeError("ORGAN_API_KEY environment variable is not set")
+    return {"Authorization": f"Bearer {api_key}"}
 
 
 @mcp.tool()
@@ -27,7 +35,7 @@ def list_gigs() -> str:
     Use this to answer questions about upcoming gigs, past performances,
     repertoire at specific gigs, fees, etc.
     """
-    response = httpx.get(f"{BASE_URL}/gigs/")
+    response = httpx.get(f"{BASE_URL}/gigs/", headers=_auth_headers())
     response.raise_for_status()
     gigs = response.json()
 
@@ -62,7 +70,7 @@ def list_pieces() -> str:
     Use this to answer questions about the repertoire, suggest pieces for a
     given occasion, find pieces by a specific composer, etc.
     """
-    response = httpx.get(f"{BASE_URL}/pieces/")
+    response = httpx.get(f"{BASE_URL}/pieces/", headers=_auth_headers())
     response.raise_for_status()
     pieces = response.json()
 
@@ -88,7 +96,7 @@ def list_churches() -> str:
     Use this to answer questions about venues, locations, or church-specific
     details (e.g. door codes stored in the info field).
     """
-    response = httpx.get(f"{BASE_URL}/churches/")
+    response = httpx.get(f"{BASE_URL}/churches/", headers=_auth_headers())
     response.raise_for_status()
     churches = response.json()
 
