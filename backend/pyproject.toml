@@ -1,0 +1,12 @@
+[project]
+name = "organ"
+version = "0.1.0"
+description = "FastAPI app for tracking organ gigs"
+readme = "README.md"
+requires-python = ">=3.13"
+dependencies = [
+    "fastapi[standard]>=0.117.1",
+    "pydantic>=2.11.9",
+    "sqlalchemy>=2.0.43",
+    "uvicorn>=0.36.0",
+]

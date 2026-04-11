@@ -1,0 +1,115 @@
+* Useful queries
+** For a given piece, when and where have I played it?
+** For a given church, when have I played, and what pieces?
+- Add a gig from here?
+** List all pieces
+- Order by last date played, or alphabetical (composer, title), or duration
+* Improvements
+- [X] Add a field for "Occasion" in Gigs
+- [X] Add a field for "Notes" in Pieces (e.g., Orgelbuchlein page 32)
+- [X] Move navigation buttons to top right to save vertical space
+** Main page
+- [ ] Omit "Info" and edit box from church list
+- [ ] Show church "detail" when church selected
+  - Include "info" and edit button (and delete), in addition to list of gigs
+  - Edit form should replace the church detail (not the table row)
+** Pieces page
+- [ ] Omit Edit button from pieces form
+- [ ] Show piece "detail" when piece selected
+  - Include "notes" and list of gigs
+  - Include Edit button (and delete)
+- [ ] Improve listing of gigs in Pieces page
+- [ ] Display duration in min:sec (and input in min:sec?)
+* Testing suggestions
+#+begin_src txt
+organ_gigs/
+├── app/
+│   └── ...
+├── tests/
+│   └── test_gigs.py
+#+end_src
+** =tests/test_gigs.py=
+#+begin_src python
+from fastapi.testclient import TestClient
+from app.main import app
+
+client = TestClient(app)
+
+def test_read_gigs_empty():
+    response = client.get("/gigs/")
+    assert response.status_code == 200
+    assert isinstance(response.json(), list)
+#+end_src
+
+** fixtures
+#+begin_src python
+import pytest
+from fastapi.testclient import TestClient
+from app.main import app
+
+@pytest.fixture
+def client():
+    return TestClient(app)
+
+def test_homepage(client):
+    response = client.get("/")
+    assert response.status_code == 404  # or 200 if you define a root route
+
+#+end_src
+
+** Example tests
+#+begin_src python
+import pytest
+from fastapi.testclient import TestClient
+from app.main import app
+
+client = TestClient(app)
+
+def test_read_gigs_empty():
+    response = client.get("/gigs/")
+    assert response.status_code == 200
+    assert isinstance(response.json(), list)
+
+def test_add_and_read_gig():
+    # Add a church
+    church_resp = client.post("/churches/", json={"name": "Test Church"})
+    assert church_resp.status_code == 200
+    church_id = church_resp.json()["id"]
+
+    # Add a piece
+    piece_resp = client.post("/pieces/", json={
+        "title": "Test Piece",
+        "composer": "Test Composer",
+        "duration": 300
+    })
+    assert piece_resp.status_code == 200
+    piece_id = piece_resp.json()["id"]
+
+    # Add a gig
+    gig_data = {
+        "date": "2024-01-01",
+        "church_id": church_id,
+        "fee": 150.0,
+        "pieces": [
+            {"piece_id": piece_id, "role": "Prelude"}
+        ]
+    }
+    gig_resp = client.post("/gigs/", json=gig_data)
+    assert gig_resp.status_code == 200
+    gig = gig_resp.json()
+    assert gig["church"]["id"] == church_id
+    assert gig["pieces"][0]["piece"]["id"] == piece_id
+    assert gig["pieces"][0]["role"] == "Prelude"
+
+    # Read the gig back
+    gig_id = gig["id"]
+    get_resp = client.get(f"/gigs/{gig_id}")
+    assert get_resp.status_code == 200
+    assert get_resp.json()["id"] == gig_id
+
+def test_read_missing_gig():
+    response = client.get("/gigs/999999")
+    assert response.status_code == 404
+    assert response.json()["detail"] == "Gig not found"
+
+#+end_src
