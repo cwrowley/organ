@@ -1,0 +1,48 @@
+* Features to add
+** DONE Make gigs-mode derived mode from tabulated-list mode
+[[https://www.gnu.org/software/emacs/manual/html_node/elisp/Tabulated-List-Mode.html][Tabulated list mode]]
+** DONE Show list of pieces (tabulated-list mode)
+** DONE Add key bindings
+#+begin_src emacs-lisp
+(defvar my-package-prefix-map
+  (let ((map (make-sparse-keymap)))
+    ;; Bind keys within the prefix map
+    (define-key map (kbd "f") 'my-package-foo)
+    (define-key map (kbd "b") 'my-package-bar)
+    map)
+  "Keymap for my-package commands after `C-c o` prefix.")
+
+(global-set-key (kbd "C-c o") my-package-prefix-map)
+
+(use-package my-package
+  :bind (:map my-package-prefix-map
+              ("f" . my-package-foo)
+              ("b" . my-package-bar))
+  :config
+  (global-set-key (kbd "C-c o") my-package-prefix-map))
+#+end_src
+** DONE Show gig pieces in tabulated-list mode
+** DONE Improve gig editing, to add additional pieces
+** DONE Improve gig editing: edit fee, occasion
+** DONE Improve gig editing: delete a piece
+** DONE Edit a piece
+- Composer: Sigfrid Karg-Elert
+- Title: Brahms O wie selig
+** TODO Add faces
+#+begin_src emacs-lisp
+(defun my-package-make-tabulated-list-entries ()
+  (let ((entries '()))
+    (dolist (item my-package-data)
+      (let ((name (propertize (car item) 'face 'my-package-highlight-face))
+            (status (propertize (cadr item) 'face 'my-package-warning-face)))
+        (push (list item (vector name status)) entries)))
+    entries))
+#+end_src
+- font-lock-comment-face: Typically used for comments, often styled in a subdued color.
+- font-lock-function-name-face: Generally used for function names, often styled in a distinct color.
+- font-lock-keyword-face: Used for keywords, typically styled boldly.
+- font-lock-string-face: Used for strings, often styled in a color that stands out.
+*** Describe face at point
+C-u C-x =
+*** Different color for upcoming vs past gigs
+*** Pieces: color depending on how recently played (like vc-annotate)
