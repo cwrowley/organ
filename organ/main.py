@@ -21,5 +21,8 @@ app.include_router(churches.router, prefix="/churches", tags=["Churches"])
 app.include_router(pieces.router, prefix="/pieces", tags=["Pieces"])
 app.include_router(gigs.router, prefix="/gigs", tags=["Gigs"])
 
-if __name__ == "__main__":
+def run_server():
     uvicorn.run("organ.main:app", host="0.0.0.0", port=1685, reload=True)
+
+if __name__ == "__main__":
+    run_server()

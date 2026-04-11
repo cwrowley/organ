@@ -1,3 +1,3 @@
-import uvicorn
+import organ.main
 
-uvicorn.run("organ.main:app", host="0.0.0.0", port=1685, reload=True)
+organ.main.run_server()
