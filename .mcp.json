@@ -1,0 +1,15 @@
+{
+  "mcpServers": {
+    "organ": {
+      "command": "uv",
+      "args": [
+        "run",
+        "--directory",
+        "/Users/clancy/repos/organ/backend",
+        "python",
+        "-m",
+        "organ.mcp_server"
+      ]
+    }
+  }
+}
