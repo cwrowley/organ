@@ -2,3 +2,4 @@
 data/
 oldstuff/
 .env
+*.egg-info
