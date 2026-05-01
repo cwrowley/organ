@@ -10,6 +10,7 @@
 	let error = $state<string | null>(null);
 	let showPast = $state(false);
 	let expandedId = $state<number | null>(null);
+	let filterChurchId = $state<number | ''>('');
 
 	async function load() {
 		loading = true;
@@ -51,8 +52,16 @@
 		}
 	}
 
-	let upcoming = $derived(gigs.filter((g) => isUpcoming(g.date)));
-	let past = $derived(gigs.filter((g) => !isUpcoming(g.date)).slice().reverse());
+	let churches = $derived(
+		[...new Map(gigs.map((g) => [g.church.id, g.church])).values()].sort((a, b) =>
+			a.name.localeCompare(b.name)
+		)
+	);
+	let filteredGigs = $derived(
+		filterChurchId === '' ? gigs : gigs.filter((g) => g.church.id === filterChurchId)
+	);
+	let upcoming = $derived(filteredGigs.filter((g) => isUpcoming(g.date)));
+	let past = $derived(filteredGigs.filter((g) => !isUpcoming(g.date)).slice().reverse());
 </script>
 
 <div class="flex items-center justify-between">
@@ -70,6 +79,30 @@
 {:else if error}
 	<p class="mt-6 rounded bg-red-50 p-3 text-red-700">{error}</p>
 {:else}
+	{#if churches.length > 1}
+		<div class="mt-4 flex items-center gap-2">
+			<label for="church-filter" class="text-sm text-slate-500">Church:</label>
+			<select
+				id="church-filter"
+				bind:value={filterChurchId}
+				class="rounded border border-slate-300 px-2 py-1 text-sm"
+			>
+				<option value="">All churches</option>
+				{#each churches as c (c.id)}
+					<option value={c.id}>{c.name}</option>
+				{/each}
+			</select>
+			{#if filterChurchId !== ''}
+				<button
+					onclick={() => (filterChurchId = '')}
+					class="text-xs text-slate-400 hover:text-slate-600"
+				>
+					Clear
+				</button>
+			{/if}
+		</div>
+	{/if}
+
 	<section class="mt-6">
 		<h2 class="mb-2 text-sm font-semibold uppercase tracking-wide text-slate-500">
 			Upcoming ({upcoming.length})
@@ -125,22 +158,14 @@
 					</tr>
 					{#if open}
 						<tr class="border-t border-slate-100 bg-slate-50">
-							<td colspan="6" class="px-4 py-3">
-								<div class="flex items-center justify-end gap-2 pb-2 text-xs">
-									<a
-										href="/gigs/{gig.id}/edit"
-										class="rounded border border-slate-300 bg-white px-2 py-1 hover:bg-slate-100"
-									>
-										Edit
-									</a>
-									<button
-										onclick={() => deleteGig(gig.id, formatDate(gig.date))}
-										class="rounded border border-red-300 bg-white px-2 py-1 text-red-700 hover:bg-red-50"
-									>
-										Delete
-									</button>
-								</div>
-								<GigPanel {gig} pieces={allPieces} onChange={updateGig} />
+							<td colspan="6" class="px-4 py-2">
+								<GigPanel
+									{gig}
+									pieces={allPieces}
+									onChange={updateGig}
+									editHref="/gigs/{gig.id}/edit"
+									onDelete={() => deleteGig(gig.id, formatDate(gig.date))}
+								/>
 							</td>
 						</tr>
 					{/if}

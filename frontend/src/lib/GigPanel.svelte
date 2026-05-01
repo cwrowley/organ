@@ -7,11 +7,15 @@
 	let {
 		gig,
 		pieces,
-		onChange
+		onChange,
+		editHref,
+		onDelete
 	}: {
 		gig: Gig;
 		pieces: Piece[];
 		onChange: (g: Gig) => void;
+		editHref?: string;
+		onDelete?: () => void;
 	} = $props();
 
 	let addingPiece = $state(false);
@@ -69,9 +73,32 @@
 	}
 </script>
 
-<div class="space-y-3">
+<div class="space-y-2">
 	<div class="flex items-center justify-between">
-		<h3 class="text-sm font-semibold uppercase tracking-wide text-slate-500">Pieces</h3>
+		<div class="flex items-center gap-2">
+			{#if editHref || onDelete}
+				<div class="flex gap-1.5">
+					{#if editHref}
+						<a
+							href={editHref}
+							class="rounded border border-slate-300 bg-white px-2 py-0.5 text-xs hover:bg-slate-100"
+						>
+							Edit
+						</a>
+					{/if}
+					{#if onDelete}
+						<button
+							onclick={onDelete}
+							class="rounded border border-red-300 bg-white px-2 py-0.5 text-xs text-red-700 hover:bg-red-50"
+						>
+							Delete
+						</button>
+					{/if}
+				</div>
+				<span class="text-slate-200">|</span>
+			{/if}
+			<h3 class="text-sm font-semibold uppercase tracking-wide text-slate-500">Pieces</h3>
+		</div>
 		<button
 			onclick={() => (addingPiece = !addingPiece)}
 			class="rounded bg-slate-900 px-3 py-1 text-xs font-medium text-white hover:bg-slate-700"
