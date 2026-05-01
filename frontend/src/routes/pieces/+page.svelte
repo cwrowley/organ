@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { api, ApiError } from '$lib/api';
 	import type { PieceCreate, PieceWithStats } from '$lib/types';
-	import { formatDate, formatDuration } from '$lib/format';
+	import { formatDate, formatDuration, parseDuration } from '$lib/format';
 
 	let pieces = $state<PieceWithStats[]>([]);
 	let loading = $state(true);
@@ -10,6 +10,11 @@
 	let filter = $state('');
 
 	let draft = $state<PieceCreate>({ title: '', composer: '', duration: null, notes: null });
+	let durationInput = $state('');
+
+	let composers = $derived(
+		[...new Set(pieces.map((p) => p.composer).filter(Boolean))].sort()
+	);
 
 	async function load() {
 		loading = true;
@@ -31,18 +36,27 @@
 
 	function startNew() {
 		draft = { title: '', composer: '', duration: null, notes: null };
+		durationInput = '';
 		editing = 'new';
 	}
 	function startEdit(p: PieceWithStats) {
 		draft = { title: p.title, composer: p.composer, duration: p.duration, notes: p.notes };
+		durationInput = formatDuration(p.duration);
 		editing = p;
 	}
 
 	async function save(e: Event) {
 		e.preventDefault();
+		const trimmed = durationInput.trim();
+		const dur = trimmed === '' ? null : parseDuration(trimmed);
+		if (trimmed !== '' && dur === null) {
+			error = 'Invalid duration. Use seconds (e.g. 90) or m:ss (e.g. 1:30).';
+			return;
+		}
+		const payload: PieceCreate = { ...draft, duration: dur };
 		try {
-			if (editing === 'new') await api.pieces.create(draft);
-			else if (editing) await api.pieces.update(editing.id, draft);
+			if (editing === 'new') await api.pieces.create(payload);
+			else if (editing) await api.pieces.update(editing.id, payload);
 			editing = null;
 			await load();
 		} catch (e) {
@@ -100,15 +114,23 @@
 				<span class="text-sm font-medium">Composer</span>
 				<input
 					required
+					list="composers"
 					bind:value={draft.composer}
 					class="mt-1 w-full rounded border border-slate-300 px-3 py-2"
 				/>
+				<datalist id="composers">
+					{#each composers as c}
+						<option value={c}></option>
+					{/each}
+				</datalist>
 			</label>
 			<label class="block">
-				<span class="text-sm font-medium">Duration (minutes)</span>
+				<span class="text-sm font-medium">Duration <span class="font-normal text-slate-500">(seconds, or m:ss)</span></span>
 				<input
-					type="number"
-					bind:value={draft.duration}
+					type="text"
+					inputmode="numeric"
+					bind:value={durationInput}
+					placeholder="e.g. 90 or 1:30"
 					class="mt-1 w-full rounded border border-slate-300 px-3 py-2"
 				/>
 			</label>
@@ -120,13 +142,19 @@
 				/>
 			</label>
 		</div>
+		{#if error}
+			<p class="rounded bg-red-50 p-2 text-sm text-red-700">{error}</p>
+		{/if}
 		<div class="flex gap-2">
 			<button class="rounded bg-slate-900 px-4 py-2 text-sm text-white hover:bg-slate-700">
 				Save
 			</button>
 			<button
 				type="button"
-				onclick={() => (editing = null)}
+				onclick={() => {
+					editing = null;
+					error = null;
+				}}
 				class="rounded border border-slate-300 px-4 py-2 text-sm hover:bg-slate-100"
 			>
 				Cancel

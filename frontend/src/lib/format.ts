@@ -17,12 +17,26 @@ export function isUpcoming(iso: string): boolean {
 	return date >= today;
 }
 
-export function formatDuration(minutes: number | null): string {
-	if (minutes == null) return '';
-	if (minutes < 60) return `${minutes}m`;
-	const h = Math.floor(minutes / 60);
-	const m = minutes % 60;
-	return m === 0 ? `${h}h` : `${h}h ${m}m`;
+export function formatDuration(seconds: number | null): string {
+	if (seconds == null) return '';
+	const m = Math.floor(seconds / 60);
+	const s = Math.floor(seconds % 60);
+	return `${m}:${s.toString().padStart(2, '0')}`;
+}
+
+export function parseDuration(input: string): number | null {
+	const s = input.trim();
+	if (s === '') return null;
+	if (s.includes(':')) {
+		const parts = s.split(':');
+		if (parts.length !== 2) return null;
+		const m = Number(parts[0]);
+		const sec = Number(parts[1]);
+		if (!Number.isFinite(m) || !Number.isFinite(sec)) return null;
+		return Math.round(m * 60 + sec);
+	}
+	const n = Number(s);
+	return Number.isFinite(n) ? Math.round(n) : null;
 }
 
 export function formatFee(fee: number | null): string {
