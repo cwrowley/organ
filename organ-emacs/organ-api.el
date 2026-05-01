@@ -9,7 +9,7 @@
   "Customization group for my Emacs package."
   :group 'applications)
 
-(defcustom organ-base-url "http://localhost:1685"
+(defcustom organ-base-url "http://localhost:1685/api"
   "Base URL for the API requests in organ package."
   :type 'string
   :group 'organ)

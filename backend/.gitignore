@@ -3,3 +3,4 @@ data/
 oldstuff/
 .env
 *.egg-info
+organ/static/
