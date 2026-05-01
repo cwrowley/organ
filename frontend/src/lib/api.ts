@@ -4,8 +4,8 @@ import type {
 	ChurchCreate,
 	Gig,
 	GigCreate,
-	Piece,
-	PieceCreate
+	PieceCreate,
+	PieceWithStats
 } from './types';
 
 const BASE = '/api';
@@ -61,11 +61,11 @@ export const api = {
 		delete: (id: number) => request<void>('DELETE', `/gigs/${id}`)
 	},
 	pieces: {
-		list: () => request<Piece[]>('GET', '/pieces/'),
-		get: (id: number) => request<Piece>('GET', `/pieces/${id}`),
-		create: (p: PieceCreate) => request<Piece>('POST', '/pieces/', p),
+		list: () => request<PieceWithStats[]>('GET', '/pieces/'),
+		get: (id: number) => request<PieceWithStats>('GET', `/pieces/${id}`),
+		create: (p: PieceCreate) => request<PieceWithStats>('POST', '/pieces/', p),
 		update: (id: number, p: PieceCreate) =>
-			request<Piece>('PUT', `/pieces/${id}`, p),
+			request<PieceWithStats>('PUT', `/pieces/${id}`, p),
 		delete: (id: number) => request<void>('DELETE', `/pieces/${id}`),
 		gigs: (id: number) => request<Gig[]>('GET', `/pieces/${id}/gigs`)
 	},

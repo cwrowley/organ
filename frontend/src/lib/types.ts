@@ -10,6 +10,12 @@ export interface Piece {
 	notes: string | null;
 }
 
+export interface PieceWithStats extends Piece {
+	last_performed: string | null;
+	upcoming_dates: string[];
+	performance_count: number;
+}
+
 export type PieceCreate = Omit<Piece, 'id'>;
 
 export interface Church {

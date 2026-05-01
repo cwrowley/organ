@@ -24,6 +24,11 @@ class PieceOut(BaseModel):
 
     model_config = ConfigDict(from_attributes=True)
 
+class PieceWithStats(PieceOut):
+    last_performed: Optional[date] = None
+    upcoming_dates: list[date] = []
+    performance_count: int = 0
+
 # ----------------------------
 # Church Schemas
 # ----------------------------

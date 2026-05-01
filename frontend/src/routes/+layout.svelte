@@ -17,6 +17,7 @@
 
 	const navItems = [
 		{ href: '/', label: 'Gigs' },
+		{ href: '/practice', label: 'Practice' },
 		{ href: '/pieces', label: 'Pieces' },
 		{ href: '/churches', label: 'Churches' }
 	];

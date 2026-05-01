@@ -1,12 +1,12 @@
 <script lang="ts">
 	import { api, ApiError } from '$lib/api';
-	import type { Piece, PieceCreate } from '$lib/types';
-	import { formatDuration } from '$lib/format';
+	import type { PieceCreate, PieceWithStats } from '$lib/types';
+	import { formatDate, formatDuration } from '$lib/format';
 
-	let pieces = $state<Piece[]>([]);
+	let pieces = $state<PieceWithStats[]>([]);
 	let loading = $state(true);
 	let error = $state<string | null>(null);
-	let editing = $state<Piece | 'new' | null>(null);
+	let editing = $state<PieceWithStats | 'new' | null>(null);
 	let filter = $state('');
 
 	let draft = $state<PieceCreate>({ title: '', composer: '', duration: null, notes: null });
@@ -33,7 +33,7 @@
 		draft = { title: '', composer: '', duration: null, notes: null };
 		editing = 'new';
 	}
-	function startEdit(p: Piece) {
+	function startEdit(p: PieceWithStats) {
 		draft = { title: p.title, composer: p.composer, duration: p.duration, notes: p.notes };
 		editing = p;
 	}
@@ -50,7 +50,7 @@
 		}
 	}
 
-	async function remove(p: Piece) {
+	async function remove(p: PieceWithStats) {
 		if (!confirm(`Delete "${p.title}"?`)) return;
 		try {
 			await api.pieces.delete(p.id);
@@ -155,6 +155,8 @@
 					<th class="px-4 py-2 font-medium">Composer</th>
 					<th class="px-4 py-2 font-medium">Title</th>
 					<th class="px-4 py-2 font-medium">Duration</th>
+					<th class="px-4 py-2 font-medium">Last played</th>
+					<th class="px-4 py-2 font-medium" title="Past performances">×</th>
 					<th class="px-4 py-2 font-medium">Notes</th>
 					<th class="px-4 py-2"></th>
 				</tr>
@@ -165,6 +167,10 @@
 						<td class="px-4 py-2">{p.composer}</td>
 						<td class="px-4 py-2 font-medium">{p.title}</td>
 						<td class="px-4 py-2 text-slate-600">{formatDuration(p.duration)}</td>
+						<td class="px-4 py-2 whitespace-nowrap text-slate-600">
+							{p.last_performed ? formatDate(p.last_performed) : '—'}
+						</td>
+						<td class="px-4 py-2 text-slate-600">{p.performance_count || ''}</td>
 						<td class="px-4 py-2 text-slate-500 italic">{p.notes ?? ''}</td>
 						<td class="px-4 py-2 text-right whitespace-nowrap">
 							<button
