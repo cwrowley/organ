@@ -1,10 +1,13 @@
 import os
 
 import uvicorn
+from dotenv import load_dotenv
 from fastapi import Depends, FastAPI, HTTPException
 from fastapi.responses import FileResponse
 
 from organ.auth import verify_api_key
+
+load_dotenv()
 from organ.routers import churches, gigs, pieces
 
 app = FastAPI(
