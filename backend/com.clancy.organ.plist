@@ -19,6 +19,9 @@
     <key>WorkingDirectory</key>
     <string>/Users/clancy/organ/backend</string>
 
+    <key>UserName</key>
+    <string>clancy</string>
+
     <key>RunAtLoad</key>
     <true/>
 

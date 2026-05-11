@@ -26,12 +26,18 @@ ORGAN_API_KEY=your-key-here
 ## Auto-start with launchd (macOS)
 
 `com.clancy.organ.plist` configures launchd to start the backend automatically
-when you log in. To install it:
+at boot, even without a GUI login session (useful for headless/SSH-managed servers).
+It installs as a LaunchDaemon (system-wide), which unlike a LaunchAgent does not
+require an active desktop session.
+
+To install:
 
 ```bash
 mkdir -p ~/logs
-cp com.clancy.organ.plist ~/Library/LaunchAgents/
-launchctl load ~/Library/LaunchAgents/com.clancy.organ.plist
+sudo cp com.clancy.organ.plist /Library/LaunchDaemons/
+sudo chown root:wheel /Library/LaunchDaemons/com.clancy.organ.plist
+sudo chmod 644 /Library/LaunchDaemons/com.clancy.organ.plist
+sudo launchctl load /Library/LaunchDaemons/com.clancy.organ.plist
 ```
 
 Logs are written to `~/logs/organ.log` and `~/logs/organ.err`.
@@ -39,5 +45,5 @@ Logs are written to `~/logs/organ.log` and `~/logs/organ.err`.
 To stop or unload the service:
 
 ```bash
-launchctl unload ~/Library/LaunchAgents/com.clancy.organ.plist
+sudo launchctl unload /Library/LaunchDaemons/com.clancy.organ.plist
 ```
