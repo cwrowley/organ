@@ -14,10 +14,6 @@
         <string>0.0.0.0</string>
         <string>--port</string>
         <string>1685</string>
-        <string>--ssl-certfile</string>
-        <string>/etc/tailscale/certs/organ.crt</string>
-        <string>--ssl-keyfile</string>
-        <string>/etc/tailscale/certs/organ.key</string>
     </array>
 
     <key>WorkingDirectory</key>
