@@ -1,1 +1,12 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64"><rect width="64" height="64" rx="8" fill="#1e293b"/><text x="32" y="44" font-family="serif" font-size="36" font-weight="bold" fill="#fbbf24" text-anchor="middle">♪</text></svg>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
+  <defs>
+    <clipPath id="c"><rect width="64" height="64" rx="7"/></clipPath>
+  </defs>
+  <g clip-path="url(#c)">
+    <rect width="64" height="64" fill="#d4a455"/>
+    <line x1="21.5" y1="0" x2="21.5" y2="64" stroke="#a07030" stroke-width="1"/>
+    <line x1="42.5" y1="0" x2="42.5" y2="64" stroke="#a07030" stroke-width="1"/>
+    <rect x="16" y="0" width="11" height="37" rx="2" fill="#3c2010"/>
+    <rect x="37" y="0" width="11" height="37" rx="2" fill="#3c2010"/>
+  </g>
+</svg>
