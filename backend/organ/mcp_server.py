@@ -17,7 +17,7 @@ import httpx
 from mcp.server.fastmcp import FastMCP
 
 mcp = FastMCP("Organ Gigs")
-BASE_URL = "http://localhost:1685/api"
+BASE_URL = os.environ.get("ORGAN_BASE_URL", "http://localhost:1685") + "/api"
 
 
 def _auth_headers() -> dict[str, str]:
