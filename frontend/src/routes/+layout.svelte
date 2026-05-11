@@ -33,6 +33,7 @@
 		<form onsubmit={saveKey} class="w-full max-w-md space-y-4 rounded-lg bg-white p-8 shadow">
 			<h1 class="text-2xl font-bold text-slate-900">Organ Gigs</h1>
 			<p class="text-sm text-slate-600">Enter your API key to continue.</p>
+			<!-- svelte-ignore a11y_autofocus -->
 			<input
 				type="password"
 				bind:value={keyInput}

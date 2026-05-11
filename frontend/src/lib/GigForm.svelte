@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { untrack } from 'svelte';
 	import type { Church, GigCreate, Piece, Role } from './types';
 	import { ROLES } from './types';
 
@@ -18,12 +19,12 @@
 		onCancel?: () => void;
 	} = $props();
 
-	let date = $state(initial?.date ?? new Date().toISOString().slice(0, 10));
-	let churchId = $state<number | ''>(initial?.church_id ?? '');
-	let fee = $state<string>(initial?.fee != null ? String(initial.fee) : '');
-	let occasion = $state(initial?.occasion ?? '');
+	let date = $state(untrack(() => initial?.date ?? new Date().toISOString().slice(0, 10)));
+	let churchId = $state<number | ''>(untrack(() => initial?.church_id ?? ''));
+	let fee = $state<number | null>(untrack(() => initial?.fee ?? null));
+	let occasion = $state(untrack(() => initial?.occasion ?? ''));
 	let entries = $state<{ piece_id: number | ''; role: Role }[]>(
-		initial?.pieces.map((p) => ({ piece_id: p.piece_id, role: p.role })) ?? []
+		untrack(() => initial?.pieces.map((p) => ({ piece_id: p.piece_id, role: p.role })) ?? [])
 	);
 	let submitting = $state(false);
 	let error = $state<string | null>(null);
@@ -44,7 +45,7 @@
 		const payload: GigCreate = {
 			date,
 			church_id: churchId,
-			fee: fee.trim() === '' ? null : Number(fee),
+			fee: fee ?? null,
 			occasion: occasion.trim() === '' ? null : occasion,
 			pieces: cleanedPieces
 		};
@@ -88,7 +89,7 @@
 			<span class="text-sm font-medium">Fee</span>
 			<input
 				type="number"
-				step="0.01"
+				step="1"
 				bind:value={fee}
 				class="mt-1 w-full rounded border border-slate-300 px-3 py-2"
 			/>
